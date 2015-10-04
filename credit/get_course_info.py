@@ -102,14 +102,10 @@ class Lesson(object):
                 + self.add_quotes("teacher") + ":" + self.add_quotes(self.teacher) + "," \
                 + self.add_quotes("room") + ":" + self.add_quotes(self.room) + "," \
                 + self.add_quotes("duration") + ":" + self.add_quotes(self.duration) + "," \
+                + self.add_quotes("credit") + ":" + self.add_quotes(self.credit) + "," \
                 + self.add_quotes("days") + ":"  + days_str   \
                 + "}"
         return json_data
-
-
-
-
-
 
 class ClassParser(HTMLParser):  # 空标签会被跳过
 

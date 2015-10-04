@@ -3,7 +3,7 @@ import urllib
 import urllib.request
 import http.client
 import http.cookiejar
-import get_course_info
+from . import get_course_info
 
 HOSTADDR = 'http://credit.stu.edu.cn/portal/stulogin.aspx'
 # 1(秋季学期) 2(春季学期) 3(夏季学期)
@@ -69,6 +69,7 @@ def connect(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN):
         return False, WRONG_PASSWORD
 
     # print(resp.read())
+    # 打印所有cookie的内容
     # for item in cookie:
     #     print('Name = ' + item.name)
     #     print('Value = ' + item.value)
@@ -76,9 +77,6 @@ def connect(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN):
     resp = opener.open('http://credit.stu.edu.cn/Elective/MyCurriculumSchedule.aspx')
     content = resp.read()
     assert isinstance(content, bytes)
-
-
-
     start_str = b'.aspx?'
     start_index = content.find(start_str)
     end_index = content.find(b' ', start_index)
@@ -101,7 +99,9 @@ def connect(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN):
           'D1%A7%C4%EA&ucsYS%24XQ=' + str(semester) + '&ucsYS%24hfXN=&btnSearch.x=42&btnSearch.y=21').format(start_year, end_year)
         # 'ucsYS%24XN%24Text=' + str(start_year) + '-' + str(end_year) + '%' \
             # 上面的Text那里是学年的选择，XQ 有三个取值 1(秋季学期) 2(春季学期) 3(夏季学期)
+    # print(data)
     data = data.encode('utf-8')
+
     resp = opener.open(curriculum_url, data=data)
     content = resp.read()
     # print(content)
@@ -122,7 +122,7 @@ def parse(content):
     return lessons
 
 if __name__ == "__main__":
-    ret_val = connect("14xfdeng", "x", start_year=2014, end_year=2015, semester=AUTUMN)
+    ret_val = connect("14xfdeng", "Smallfly2nd", start_year=2014, end_year=2015, semester=AUTUMN)
     if ret_val[0]:
         source = ret_val[1]
         lessons = parse(source.decode(WEBSITE_ENCODING))     # 学校的那个网站用的是GBK编码，有点坑爹

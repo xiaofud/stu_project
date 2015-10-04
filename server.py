@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify
+# coding=utf-8
+from flask import Flask, render_template, request, jsonify, url_for, redirect
 from  credit import login_credit
 from credit import get_course_info
 from oa import oa_main
@@ -9,6 +10,19 @@ from oa import oa_main
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Nothing secret yet"
 
+@app.errorhandler(404)
+def page_not_found(err):
+    print(err)
+    return redirect(url_for('index'))
+
+@app.route('/')
+def index():
+    urls = dict()
+    urls['syllabus'] = url_for('query', _external=True)
+    urls['oa'] = url_for('get_updated_information', _external=True)
+    return render_template('home.html', urls=urls)
+
+# 课程表
 @app.route('/syllabus', methods=['GET', 'POST'])
 def query():
     if request.method == 'POST':
@@ -32,8 +46,9 @@ def query():
                 return lessons
         else:
             return jsonify(ERROR=login_credit.err_srt(ret_val[1]))
-    return render_template("login.html")
+    return render_template('login.html')
 
+# 办公自动化
 @app.route('/oa')
 def get_updated_information():
     information = oa_main.get_most_updated()    # list of dict
@@ -41,4 +56,4 @@ def get_updated_information():
     # return information
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=4444)

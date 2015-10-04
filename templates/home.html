@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    {% for url in urls %}
+    <p align="center">
+        <a href="{{ urls[url] }}" target="_blank">{{ url }}</a>
+    </p>
+    {% endfor %}
+</body>
+</html>
