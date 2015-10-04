@@ -1,1 +1,1 @@
-__author__ = 'STU_nwad'
+# coding=utf-8

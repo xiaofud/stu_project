@@ -4,11 +4,9 @@ from  credit import login_credit
 from credit import get_course_info
 from oa import oa_main
 
-# import sys
-# print(sys.path)
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "Nothing secret yet"
+
 
 @app.errorhandler(404)
 def page_not_found(err):
