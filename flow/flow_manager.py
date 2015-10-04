@@ -1,11 +1,9 @@
 # coding=utf-8
 import time
-import sys, os
-sys.path.append(os.path.abspath('..'))
-from server import app
 from db_package.database_operation import *
 from flask_restful import Resource, Api, abort, reqparse, output_json
 
+from app import app
 api = Api(app)
 
 

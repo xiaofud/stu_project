@@ -1,12 +1,11 @@
 # coding=utf-8
-from flask import Flask, render_template, request, jsonify, url_for, redirect
+from flask import render_template, request, jsonify, url_for, redirect
 from  credit import login_credit
 from credit import get_course_info
 from oa import oa_main
+from app import app
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = "Nothing secret yet"
-
+from flow import flow_manager
 
 @app.errorhandler(404)
 def page_not_found(err):

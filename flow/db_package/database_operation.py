@@ -1,8 +1,7 @@
 # coding=utf-8
 import json
-import os, sys
-sys.path.append(os.path.abspath('..'))
-from server import app
+import os
+from app import app
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 
