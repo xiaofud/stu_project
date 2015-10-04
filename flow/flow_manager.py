@@ -1,7 +1,7 @@
 # coding=utf-8
-import time
-from db_package.database_operation import *
+from .db_package.database_operation import *
 from flask_restful import Resource, Api, abort, reqparse, output_json
+from flask import request
 
 from app import app
 api = Api(app)
@@ -18,7 +18,11 @@ class UserQuery(Resource):
             return output_json({"users": usernames}, 200)
         user = get_user_by_name(username)
         if user:
-            return output_json(user.to_dict(), 200)
+            password = user.password
+            if 'password' not in request.args or request.args['password'] != password:
+                return output_json({"ERROR": "forbidden"}, 401)
+            else:
+                return output_json(user.to_dict(), 200)
         else:
             abort(404, ERROR='no such user ' + username)
 
@@ -50,16 +54,21 @@ class UploadUser(Resource):
 api.add_resource(UploadUser, "/adduser")
 
 
-def test():
-    nwad = User('14xfdeng', '123456', time.time(), time.time() + 3600 * 12, 100, 90)
-    hj = User('Hj', '12323', time.time(), time.time() + 3600 * 6, 200, 100)
-    add_user(nwad)
-    add_user(hj)
+class AddShared(Resource):
+    parser = reqparse.RequestParser()
+    def put(self):
+        # 获取者的
+        self.parser.add_argument('given', required=True)
+        # 分享者的
+        self.parser.add_argument('give', required=True)
+        self.parser.add_argument('count', required=True)
+        args = self.parser.parse_args()
+        if add_shared(args['give'], args['given'], args['count']):
+            return output_json({}, 201)
+        else:
+            return output_json({"ERROR": "FALIED TO ADD"}, 401)
 
-    users = get_all_users_order_by_left_flow()
-    print_all_users(users)
+api.add_resource(AddShared, "/addshared")
 
-if __name__ == "__main__":
-    test()
-    app.run(debug=True)
+
 

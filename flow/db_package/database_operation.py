@@ -3,7 +3,7 @@ import json
 import os
 from app import app
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 DATABASE_DIR = 'sqlite:///{base}users.db'.format(base=os.path.dirname(__file__) + os.path.sep)
 
@@ -108,6 +108,14 @@ class User(db.Model):
     def __repr__(self):
         return ("<{tablename} %r>" % self.username).format(tablename=self.__tablename__)
 
+def commit():
+    try:
+        db.session.commit()
+        return True
+    except SQLAlchemyError as err:
+        print(err)
+        return False
+
 def add_user(user):
     db.create_all()
     try:
@@ -132,3 +140,18 @@ def get_all_users():
 def print_all_users(users):
     for user in users:
         print(user)
+
+def add_shared(give, given, count):
+    give= get_user_by_name(give)
+    given = get_user_by_name(given)
+    if give is None or given is None:
+        return False
+    count = int(count)
+    # 分享者
+    give.shared_this_time += count
+    give.total_shared += count
+    # 获取者
+    given.fetched_this_time += count
+    given.total_fetched += count
+    return commit()
+
