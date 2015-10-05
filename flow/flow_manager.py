@@ -14,7 +14,9 @@ class UserQuery(Resource):
     def get(self, username=""):
         if username == "":
             users = get_all_users()
-            usernames = list(map(lambda x: x.to_dict(), users))
+            if len(users) == 0:
+                return output_json({"ERROR": "No user"}, 200)
+            usernames = list(map(lambda x: x.username, users))
             return output_json({"users": usernames}, 200)
         user = get_user_by_name(username)
         if user:
@@ -22,7 +24,7 @@ class UserQuery(Resource):
             if 'password' not in request.args or request.args['password'] != password:
                 return output_json({"ERROR": "forbidden"}, 401)
             else:
-                return output_json(user.to_dict(), 200)
+                return output_json(user.to_simple_dict(), 200)
         else:
             abort(404, ERROR='no such user ' + username)
 
@@ -42,14 +44,17 @@ class UploadUser(Resource):
         self.parser.add_argument("max_left", required=True)
         self.parser.add_argument("start", required=True)
         self.parser.add_argument("end", required=True)
+        self.parser.add_argument("mac", required=True)
         args = self.parser.parse_args()
         user = User(args['user'], args['password'], args['start'], args['end'], args['max_share'],
-                    args['max_left'])
+                    args['max_left'], args['mac'])
         ret_vals = add_user(user)
         if ret_vals[0]:
+            print_all_users(get_all_users())
             return output_json({"message": "okay"}, 201)
         else:
-            return output_json({"ERROR": ret_vals[1]}, 409)
+            print(ret_vals[1])
+            return output_json({"ERROR": "failed"}, 409)
 
 api.add_resource(UploadUser, "/adduser")
 
@@ -62,6 +67,7 @@ class AddShared(Resource):
         # 分享者的
         self.parser.add_argument('give', required=True)
         self.parser.add_argument('count', required=True)
+        self.parser.add_argument('left_flow', required=True)    # 更新分享者所剩下的流量
         args = self.parser.parse_args()
         if add_shared(args['give'], args['given'], args['count']):
             return output_json({}, 201)

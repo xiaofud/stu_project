@@ -10,8 +10,11 @@ DATABASE_DIR = 'sqlite:///{base}users.db'.format(base=os.path.dirname(__file__) 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_DIR
 db = SQLAlchemy(app)
 
+
 # 常量定义
 USERNAME_PASSWORD_MAX_LENGTH = 30
+MAC_LENGTH = 1024
+
 USERNAME = "username"
 PASSWORD = "password"
 START_TIME = "start"
@@ -27,6 +30,8 @@ CREDIT = "credit"
 CUR_ACCOUNT = "cur_account"
 VALID = "valid"
 MAX_LEFT_FLOW = "max_left_flow"
+FETCHED_USER = "fetched_user"
+MAC_ADDRESSES = "mac_address"
 
 class User(db.Model):
     # 表名
@@ -59,9 +64,13 @@ class User(db.Model):
     valid = db.Column(db.Integer)
     # 剩余流量的最大值
     max_left_flow = db.Column(db.Integer)
+    # 获取者获取的分享者的账号
+    fetched_user = db.Column(db.String(USERNAME_PASSWORD_MAX_LENGTH))
+    # 用户的网卡地址
+    mac_addresses = db.Column(db.String(MAC_LENGTH))
 
     # 构建新的分享用户
-    def __init__(self, user, passwd, start, end, max_, max_left_flow, shared_this_time=0, total_shared=0,
+    def __init__(self, user, passwd, start, end, max_, max_left_flow, mac_address, shared_this_time=0, total_shared=0,
                  fetched_this_time=0, total_fetched=0, share_rate=0, has_been_shared=0, credit=100):
         self.username = user
         self.password = passwd
@@ -78,6 +87,20 @@ class User(db.Model):
         self.credit = credit
         self.cur_account = ""
         self.valid = 1
+        self.mac_addresses = mac_address
+
+    def to_simple_dict(self):
+        dict_data = {
+            "user":{
+                USERNAME: self.username,
+                FETCHED_USER: self.fetched_user,
+                SHARED_THIS_TIME: self.shared_this_time,
+                TOTAL_SHARED: self.total_shared,
+                FETCHED_THIS_TIME: self.fetched_this_time,
+                TOTAL_FETCHED: self.total_fetched
+            }
+        }
+        return dict_data
 
     def to_dict(self, password=False):
         dict_data = {
@@ -95,7 +118,8 @@ class User(db.Model):
                 CREDIT: self.credit,
                 CUR_ACCOUNT: self.cur_account,
                 VALID: self.valid,
-                MAX_LEFT_FLOW: self.max_left_flow
+                MAX_LEFT_FLOW: self.max_left_flow,
+                FETCHED_USER: self.fetched_user
             }
         }
         if password:
@@ -117,7 +141,6 @@ def commit():
         return False
 
 def add_user(user):
-    db.create_all()
     try:
         db.session.add(user)
         db.session.commit()
@@ -154,4 +177,6 @@ def add_shared(give, given, count):
     given.fetched_this_time += count
     given.total_fetched += count
     return commit()
+
+db.create_all()  # 不管怎样要确保有数据库存在
 

@@ -28,7 +28,8 @@ def authenticate_by_credit(username, password):
 
     try:
         resp = urllib.request.urlopen(HOSTADDR, postdata, timeout=MAX_TIME)
-    except socket.timeout:
+    except Exception as err:
+        print(type(err))
         return TIMEDOUT
     content = resp.read()
     if content.__contains__(b'alert'):
