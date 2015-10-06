@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import html.parser
+import copy
 
 PAGE_ADDR = 'http://notes.stu.edu.cn'
 
@@ -80,6 +81,8 @@ class OAParser(html.parser.HTMLParser):
                 self.objects.append(obj.to_dict())
                 self._count += 1
 
+    def clear(self):
+        self.objects.clear()
 
 
     def handle_endtag(self, tag):
@@ -93,5 +96,8 @@ class OAParser(html.parser.HTMLParser):
 def parse(content, count):
     parser = OAParser(count)
     parser.feed(content)
-    return parser.objects
+    data = copy.deepcopy(parser.objects)
+    # 不然上次的数据会残留
+    parser.clear()
+    return data
 

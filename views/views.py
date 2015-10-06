@@ -15,6 +15,7 @@ def index():
     urls = dict()
     urls['syllabus'] = url_for('query', _external=True)
     urls['oa'] = url_for('get_updated_information', _external=True)
+    urls['auth'] = url_for('stu_auth', _external=True)
     return render_template('home.html', urls=urls)
 
 # 课程表
