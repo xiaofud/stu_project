@@ -1,6 +1,6 @@
 # coding=utf-8
 from app import app
-from flask import render_template, request, jsonify, url_for, redirect
+from flask import render_template, request, jsonify, url_for, redirect, make_response, send_from_directory
 from  credit import login_credit
 from credit import get_course_info, authentication
 from oa import oa_main
@@ -69,3 +69,40 @@ def stu_auth():
                 return jsonify(status="timeout")
     else:
         return render_template("auth.html")
+
+def transform(text_file_contents):
+    return text_file_contents.replace("=", ",")
+
+
+@app.route('/transfer')
+def form():
+    return """
+        <html>
+            <body>
+                <h1>Transform a file demo</h1>
+
+                <form action="/transform" method="post" enctype="multipart/form-data">
+                    <input type="file" name="data_file" />
+                    <input type="submit" />
+                </form>
+            </body>
+        </html>
+    """
+
+@app.route('/transform', methods=["POST"])
+def transform_view():
+    file = request.files['data_file']
+    if not file:
+        return "No file"
+
+    file_contents = file.stream.read().decode("utf-8")
+
+    result = transform(file_contents)
+
+    response = make_response(result)
+    response.headers["Content-Disposition"] = "attachment; filename=result.csv"
+    return response
+
+@app.route('/download/<string:filename>')
+def download(filename):
+    return send_from_directory(directory=app.root_path, filename=filename, as_attachment=True)
