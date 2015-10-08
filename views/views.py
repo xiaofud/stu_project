@@ -5,6 +5,7 @@ from  credit import login_credit
 from credit import get_course_info, authentication
 from oa import oa_main
 
+
 @app.errorhandler(404)
 def page_not_found(err):
     print(err)
@@ -30,16 +31,19 @@ def query():
         end_year = int(end_year)
         semester = int(request.form['semester'])
         print(user, start_year, end_year, semester)
-        ret_val = login_credit.connect(user, passwd, start_year=start_year, end_year=end_year, semester=semester, timeout=5)
+        ret_val = login_credit.get_syllabus(user, passwd, start_year=start_year, end_year=end_year, semester=semester, timeout=5)
         if ret_val[0]:
-            raw = ret_val[1]
-            lessons = login_credit.parse(raw.decode('gbk'))
+            content = ret_val[1]
+            lessons = login_credit.parse(content.decode("UTF-8"))
             if len(lessons) == 0:
                 return jsonify(ERROR="No classes")
             else:
-                lessons = get_course_info.Lesson.jsonfy_all(lessons)
+                lessons_jsonfy = get_course_info.Lesson.jsonfy_all(lessons)
             # return render_template("show_classes.html", lessons=lessons)
-                return lessons
+                if login_credit.CACHE_SYLLABUS:
+                    filename = user + "_" + "{}_{}".format(start_year, end_year) + str(semester)
+                    login_credit.save_file(filename, lessons_jsonfy)
+                return lessons_jsonfy
         else:
             return jsonify(ERROR=login_credit.err_srt(ret_val[1]))
     return render_template('login.html')

@@ -5,6 +5,8 @@ import http.client
 import http.cookiejar
 from socket import _GLOBAL_DEFAULT_TIMEOUT
 from . import get_course_info
+import os
+
 
 HOSTADDR = 'http://credit.stu.edu.cn/portal/stulogin.aspx'
 # 1(秋季学期) 2(春季学期) 3(夏季学期)
@@ -13,6 +15,12 @@ SPRING = 2
 SUMMER = 3
 
 WEBSITE_ENCODING = 'gbk'
+
+# 是否缓存课程表
+CACHE_SYLLABUS = False
+# 保存缓存文件的目录
+DIR_NAME = "syllabus_dir"
+CACHE_DIR = os.path.join(os.path.dirname(__file__), DIR_NAME)
 
 # 错误常量
 EMPTY_DATA = 0
@@ -33,9 +41,23 @@ def err_srt(code):
     elif code == TIME_OUT:
         return "timeout"
 
+def convert_encoding(data, from_, to):
+    """
+    转换编码
+    :param data : bytes
+    :param from_: 原编码
+    :param to:  转换后的编码
+    :return: 转换编码后的数据, bytes
+    """
+    # print("in convert_encoding", type(data))
+    # 用 之前的编码 解码成 str
+    # 再用 需要转换的编码 编码成 bytes
+    tmp = data.decode(from_).encode(to)
+
+    return tmp
 
 
-def connect(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, timeout=_GLOBAL_DEFAULT_TIMEOUT):
+def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, timeout=_GLOBAL_DEFAULT_TIMEOUT):
     """
     登录学分制网站
     :param user:
@@ -109,13 +131,20 @@ def connect(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, timeo
 
         resp = opener.open(curriculum_url, data=data, timeout=timeout)
         content = resp.read()
-        # print(content)
-        # with open('result_page', 'wb') as f:    # 这里直接调用encode方法会出问题，还不知道原因, 因为学校的那个网站用的是GBK编码
-        #     f.write(content)
+        content = convert_encoding(content, "GBK", "UTF-8")
+        # print("In login_credit", type(content))
         return True, content
     except Exception as err:
         print(type(err), str(err))
         return False, TIME_OUT
+
+def save_file(filename, data):
+    if not os.path.exists(CACHE_DIR):
+        os.mkdir(CACHE_DIR)
+    with open(os.path.join(CACHE_DIR, filename), "w") as f:
+        print("saving " + filename)
+        f.write(data)
+
 
 
 def parse(content):
@@ -130,7 +159,7 @@ def parse(content):
     return lessons
 
 if __name__ == "__main__":
-    ret_val = connect("14xfdeng", "Smallfly2nd", start_year=2014, end_year=2015, semester=AUTUMN)
+    ret_val = get_syllabus("14xfdeng", "Smallfly2nd", start_year=2014, end_year=2015, semester=AUTUMN)
     if ret_val[0]:
         source = ret_val[1]
         lessons = parse(source.decode(WEBSITE_ENCODING))     # 学校的那个网站用的是GBK编码，有点坑爹
