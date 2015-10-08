@@ -70,39 +70,42 @@ def stu_auth():
     else:
         return render_template("auth.html")
 
-def transform(text_file_contents):
-    return text_file_contents.replace("=", ",")
+@app.route("/qr")
+def get_qr_code():
+    return render_template("QR_page.html", src="QR.png")
+# def transform(text_file_contents):
+#     return text_file_contents.replace("=", ",")
 
 
-@app.route('/transfer')
-def form():
-    return """
-        <html>
-            <body>
-                <h1>Transform a file demo</h1>
+# @app.route('/transfer')
+# def form():
+#     return """
+#         <html>
+#             <body>
+#                 <h1>Transform a file demo</h1>
+#
+#                 <form action="/transform" method="post" enctype="multipart/form-data">
+#                     <input type="file" name="data_file" />
+#                     <input type="submit" />
+#                 </form>
+#             </body>
+#         </html>
+#     """
+#
+# @app.route('/transform', methods=["POST"])
+# def transform_view():
+#     file = request.files['data_file']
+#     if not file:
+#         return "No file"
+#
+#     file_contents = file.stream.read().decode("utf-8")
+#
+#     result = transform(file_contents)
+#
+#     response = make_response(result)
+#     response.headers["Content-Disposition"] = "attachment; filename=result.csv"
+#     return response
 
-                <form action="/transform" method="post" enctype="multipart/form-data">
-                    <input type="file" name="data_file" />
-                    <input type="submit" />
-                </form>
-            </body>
-        </html>
-    """
-
-@app.route('/transform', methods=["POST"])
-def transform_view():
-    file = request.files['data_file']
-    if not file:
-        return "No file"
-
-    file_contents = file.stream.read().decode("utf-8")
-
-    result = transform(file_contents)
-
-    response = make_response(result)
-    response.headers["Content-Disposition"] = "attachment; filename=result.csv"
-    return response
-
-@app.route('/download/<string:filename>')
-def download(filename):
-    return send_from_directory(directory=app.root_path, filename=filename, as_attachment=True)
+# @app.route('/download/<string:filename>')
+# def download(filename):
+#     return send_from_directory(directory=app.root_path, filename=filename, as_attachment=True)
