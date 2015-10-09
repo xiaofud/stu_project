@@ -145,7 +145,7 @@ def save_file(filename, data):
             os.mkdir(CACHE_DIR)
         finally:
             os.umask(original_umask)
-    with open(os.path.join(CACHE_DIR, filename), "w") as f:
+    with open(os.path.join(CACHE_DIR, filename), "w", encoding="UTF-8") as f:
         print("saving " + filename)
         f.write(data)
 
