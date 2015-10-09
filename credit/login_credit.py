@@ -140,7 +140,11 @@ def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, 
 
 def save_file(filename, data):
     if not os.path.exists(CACHE_DIR):
-        os.mkdir(CACHE_DIR)
+        try:
+            original_umask = os.umask(0)
+            os.mkdir(CACHE_DIR)
+        finally:
+            os.umask(original_umask)
     with open(os.path.join(CACHE_DIR, filename), "w") as f:
         print("saving " + filename)
         f.write(data)
