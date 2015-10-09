@@ -1,19 +1,66 @@
 # coding=utf-8
 
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-DATA_BASE_URI = "sqlite:///test.db"
+from app import app
+from datetime import datetime
+import os
 
-test_app = Flask(__name__)
-test_app.config['SQLALCHEMY_DATABASE_URI'] = DATA_BASE_URI
-db = SQLAlchemy(test_app)
+DIR_PATH = os.path.dirname(__file__)
+DATA_BASE_NAME = "data_base.db"
+FILE_NAME = os.path.join(DIR_PATH, DATA_BASE_NAME).replace("\\", "/")
+DATA_BASE_URI = "sqlite:///" + FILE_NAME
 
-class Lesson(db.Model):
+app.config['SQLALCHEMY_DATABASE_URI'] = DATA_BASE_URI
+db = SQLAlchemy(app)
 
-    __tablename__ = "lesson"
+CLASS_ID_LENGTH = 40
+CLASS_NUMBER_LENGTH = 10
+CLASS_NAME_LENGTH = 40
+CLASS_CREDIT_LENGTH = 10
+CLASS_TEACHER_LENGTH = 40
+CLASS_ROOM_LENGTH = 10
+CLASS_SPAN_LENGTH = 10
+CLASS_TIME_LENGTH = 60
+
+USER_NAME_LENGTH = 20
+HW_CONTENT_LENGTH = 200
+
+DISCUSS_CONTENT_LENGTH = 140
+
+class ClassModel(db.Model):
+
+    __tablename__ = "class_table"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.String(db.String(30))
+
+    # 八个基本的属性
+    # 课程的唯一标识符
+    class_id = db.Column(db.String(CLASS_ID_LENGTH))
+    # 班号
+    class_number = db.Column(db.String(CLASS_NUMBER_LENGTH))
+    # 名称
+    class_name = db.Column(db.String(CLASS_NAME_LENGTH))
+    # 学分
+    class_credit = db.Column(db.String(CLASS_CREDIT_LENGTH))
+    # 教师
+    class_teacher = db.Column(db.String(CLASS_TEACHER_LENGTH))
+    # 课室
+    class_room = db.Column(db.String(CLASS_ROOM_LENGTH))
+    # 跨度
+    class_span = db.Column(db.String(CLASS_SPAN_LENGTH))
+    # 时间
+    class_time = db.Column(db.String(CLASS_TIME_LENGTH))
+
+    # 关系区域
+
+    # 一个课程对应多个作业
+    class_homework = db.relationship("HomeworkModel",
+                                     backref=db.backref("lesson"))
+
+    # 对应多个评论
+    class_discussion = db.relationship("DiscussModel",
+                                       backref=db.backref("lesson"))
+
 
     def __init__(self, name):
         self.name = name
@@ -21,74 +68,76 @@ class Lesson(db.Model):
     def __repr__(self):
         return "<Lesson %r>" % self.name
 
-class Comment(db.Model):
+class HomeworkModel(db.Model):
 
-    __tablename__ = "comment"
+    __tablename__ = "homework_table"
 
     id = db.Column(db.Integer, primary_key=True)
-    # 评论
-    content = db.Column(db.String(140))
+
     # 发布者
-    commenter = db.Column(db.String(20))
+    hw_publisher = db.Column(db.String(USER_NAME_LENGTH))
+    # 发布时间
+    hw_publish_time = db.Column(db.DateTime)
+    # 上交时间
+    hw_hand_in_time = db.Column(db.DateTime)
+    # 内容
+    hw_content = db.Column(db.String(HW_CONTENT_LENGTH))
+    # 图片(留作扩展)
+    hw_picture = db.Column(db.BLOB)
 
-    lesson_id = db.Column(db.Integer, db.ForeignKey("lesson.id"))
-    # relationship 'lesson' expects a class or a mapper argument
-    lesson = db.relationship(Lesson, backref=db.backref('comments'))
+    # 外键
+    hw_class = db.Column(db.Integer, db.ForeignKey("class_table.id"))
 
-    def __init__(self, commenter, content, lesson):
-        self.commenter = commenter
-        self.content = content
-        # 应该是这个时候建立了联系
+    def __init__(self, publisher, pub_time, hand_in_time, content, lesson):
+        self.hw_publisher = publisher
+        self.hw_publish_time = pub_time
+        self.hw_hand_in_time = hand_in_time
+        self.hw_content = content
         self.lesson = lesson
 
     def __repr__(self):
-        return "<comment %r>" % self.commenter + "\t" + self.content
+        return "<Homework %s %r>" % (self.hw_publisher, self.lesson) + self.hw_content
+
+class DiscussModel(db.Model):
+
+    __tablename__ = "discuss_table"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # 发布者
+    discuss_publisher = db.Column(db.String(USER_NAME_LENGTH))
+    # 内容
+    discuss_content = db.Column(db.String(DISCUSS_CONTENT_LENGTH))
+    # 时间
+    discuss_time = db.Column(db.DateTime)
+    # 图片
+    discuss_picture = db.Column(db.BLOB)
+
+    # 外键
+    discuss_class = db.Column(db.Integer, db.ForeignKey("class_table.id"))
+
+    def __init__(self, publisher, content, when, lesson):
+        self.discuss_publisher = publisher
+        self.discuss_content = content
+        self.discuss_time =  when
+        # 应该是这个时候建立了联系
+        self.lesson = lesson    # backref
+
+    def __repr__(self):
+        return "<Discussion %r %r>" % (self.discuss_publisher, self.discuss_time) + "\t" + self.discuss_content
 
 
 def test():
     db.create_all()
-    lesson = Lesson("Math")
+    lesson = ClassModel("程序设计基础")
     print(lesson)
-    comment = Comment("smallfly", "It's important", lesson)
-    comment2 = Comment("smallfly", "This's a test", None)
-    # 到这里神奇的又把 comment2 的lesson赋值为了Math class
-    lesson.comments.append(comment2)
-    print(lesson.comments)
+    homework = HomeworkModel("晓拂", datetime.now(), datetime.now(), "随便做点什么咯~不用交", lesson)
+    discussion = DiscussModel("俊皓", "随便吹吹水咯", datetime.now(), lesson)
+    print(homework)
+    print(discussion)
+    print(lesson, "\'s homework is", lesson.class_homework)
+    print("the discussion is about", discussion.lesson)
 
-    print(comment.lesson)
-    print(comment2.lesson)
 
 if __name__ == "__main__":
     test()
-
-# from datetime import datetime
-# class Post(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     title = db.Column(db.String(80))
-#     body = db.Column(db.Text)
-#     pub_date = db.Column(db.DateTime)
-#
-#     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-#     category = db.relationship('Category',
-#         backref=db.backref('posts', lazy='dynamic'))
-#
-#     def __init__(self, title, body, category, pub_date=None):
-#         self.title = title
-#         self.body = body
-#         if pub_date is None:
-#             pub_date = datetime.utcnow()
-#         self.pub_date = pub_date
-#         self.category = category
-#
-#     def __repr__(self):
-#         return '<Post %r>' % self.title
-#
-# class Category(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(50))
-#
-#     def __init__(self, name):
-#         self.name = name
-#
-#     def __repr__(self):
-#         return '<Category %r>' % self.name
