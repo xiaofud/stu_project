@@ -11,6 +11,7 @@ def page_not_found(err):
     print(err)
     return redirect(url_for('index'))
 
+# 默认页面
 @app.route('/')
 def index():
     urls = dict()
@@ -41,7 +42,7 @@ def query():
                 lessons_jsonfy = get_course_info.Lesson.jsonfy_all(lessons)
             # return render_template("show_classes.html", lessons=lessons)
                 if login_credit.CACHE_SYLLABUS:
-                    filename = user + "_" + "{}_{}".format(start_year, end_year) + str(semester)
+                    filename = user + "_" + "{}_{}".format(start_year, end_year) + "_" + str(semester)
                     login_credit.save_file(filename, lessons_jsonfy)
                 return lessons_jsonfy
         else:
@@ -77,6 +78,22 @@ def stu_auth():
 @app.route("/qr")
 def get_qr_code():
     return render_template("QR_page.html", src="QR.png")
+
+
+import os
+FILENAME = os.path.join(os.path.dirname(__file__), "news")
+
+@app.route("/news")
+def get_message():
+    # news = None
+    if os.path.exists(FILENAME):
+        with open(FILENAME, "r") as f:
+            news = f.read()
+        return jsonify(news=news)
+    else:
+        return jsonify(Error="no news")
+
+
 # def transform(text_file_contents):
 #     return text_file_contents.replace("=", ",")
 
