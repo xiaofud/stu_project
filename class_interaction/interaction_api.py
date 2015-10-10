@@ -1,7 +1,7 @@
 # coding=utf-8
 # 用于用户交互的api
 
-import database_test
+from . import database_test
 from app import app
 from flask import jsonify
 from flask_restful import Api, Resource, reqparse, abort
