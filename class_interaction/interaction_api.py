@@ -3,64 +3,156 @@
 
 import database_test
 from app import app
-from flask_restful import Api, Resource, output_json, reqparse, abort
+from flask import jsonify
+from flask_restful import Api, Resource, reqparse, abort
 
 database_test.db.create_all()
 
 api = Api(app)
 
-def ret_vals_helper(func, arg, ok_msg, ok_code=200, err_code=0):
+AUTHORIZE_CODE = "smallfly" # 测试用途
+
+def ret_vals_helper(func, arg, ok_msg):
     ret_vals = func(arg)
     if ret_vals[0]:
-        return output_json(dict(status=ok_msg), ok_code)
+        database_test.show_all_lessons()
+        return jsonify(status=ok_msg)
     else:
-        return output_json(dict(ERROR=ret_vals[1]), err_code)
+        return jsonify(ERROR=ret_vals[1])
+
+def class_arg_parser_helper(parser, location=('json', 'values',)):
+    parser.add_argument("number", required=True, location=location)
+    parser.add_argument("start_year", type=int, required=True, location=location)
+    parser.add_argument("end_year", type=int, required=True, location=location)
+    parser.add_argument("semester", required=True, type=int, location=location)
+
+def query_class_by_class_id(class_id):
+    lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+    return lesson
 
 class Cource(Resource):
     """
     用于添加课程
     """
 
-    parser = reqparse.RequestParser()
+    get_parser = reqparse.RequestParser()
+    post_parser = reqparse.RequestParser()
+    delete_parser = reqparse.RequestParser()
 
-    def get(self, name=""):
-        if name == "":
-            return output_json(dict(ERROR="you should provide class name information"), 0)
-        lesson = database_test.ClassModel.query.filter_by(class_name=name).first()
+    def get(self):
+        # 可以加可选的 location 参数 location=("args", )
+
+        class_arg_parser_helper(self.get_parser, location= ("args", ))
+        args = self.get_parser.parse_args()
+        class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
+        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is not None:
-            return output_json(dict(lesson=repr(lesson)), 200)
+            return jsonify(lesson=lesson.to_dict(), discussion=list(map(lambda x: x.to_dict(), lesson.class_discussion)),
+                           homework=list(map(lambda x: x.to_dict(), lesson.class_homework)))
         else:
-            return output_json(dict(ERROR="No such lesson"), 0)
+            return jsonify(ERROR="No such lesson")
 
     def post(self):
         # number, name, credit, teacher, room, span, time_, start_year, end_year, semester
-        self.parser.add_argument("number", required=True)
-        self.parser.add_argument("name", required=True)
-        args = self.parser.parse_args()
-        lesson = database_test.ClassModel(args["number"], args["name"], 4.0, "*", "E301", "1-16", "None,AB,None,None,None,None,None",
-                                          2015, 2016, 1)
+        self.post_parser = reqparse.RequestParser()
+        self.post_parser.add_argument("number", required=True)
+        self.post_parser.add_argument("name", required=True)
+        self.post_parser.add_argument("credit", required=True)
+        self.post_parser.add_argument("teacher", required=True)
+        self.post_parser.add_argument("room", required=True)
+        self.post_parser.add_argument("span", required=True)
+        self.post_parser.add_argument("time", required=True)
+        self.post_parser.add_argument("start_year", required=True, type=int)
+        self.post_parser.add_argument("end_year", required=True, type=int)
+        self.post_parser.add_argument("semester", required=True, type=int)
+        args = self.post_parser.parse_args()
+        lesson = database_test.ClassModel(args["number"], args["name"], args['credit'], args['teacher'], args["room"],
+        args["span"], args["time"], args["start_year"], args["end_year"], args["semester"])
         return ret_vals_helper(database_test.insert_to_database, lesson, "succeed to add the class")
-        # ret_vals = database_test.insert_to_database(lesson)
-        # if ret_vals[0]:
-        #     return output_json(dict(status="succeed to add the class"), 200)
-        # else:
-        #     return output_json(dict(ERROR=ret_vals[1]), 0)
 
-    def delete(self, name=""):
-        if name == "":
-            abort(404)
-        lesson = database_test.ClassModel.query.filter_by(class_name=name).first()
+    def delete(self):
+        # 删除需要权限
+        class_arg_parser_helper(self.delete_parser)
+        args = self.delete_parser.parse_args()
+
+
+        if args["authorize_code"] != AUTHORIZE_CODE:
+            return jsonify(ERROR="Permission Denied")
+
+        class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
+
+
+        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is not None:
             return ret_vals_helper(database_test.delete_from_database, lesson, "succeed to remove the class")
-            # ret_vals = database_test.delete_from_database(lesson)
-            # if ret_vals[0]:
-            #     return output_json(dict(status="succeed to remove the lesson"), 200)
-            # else:
-            #     return output_json(dict(ERROR=ret_vals[1]), 0)
+        else:
+            return jsonify(ERROR="No such class")
+
+api.add_resource(Cource, "/api/course", "/api/course/")
+
+# 返回指定id课程的count条作业信息
+def get_homework(id_, count):
+    if count > 0:
+        all_homework = database_test.HomeworkModel.query.filter(database_test.HomeworkModel.hw_class == id_).\
+                    order_by(database_test.HomeworkModel.id.desc()).limit(count).all()
+    else:   # 返回全部
+        all_homework = database_test.HomeworkModel.query.filter(database_test.HomeworkModel.hw_class == id_).\
+                    order_by(database_test.HomeworkModel.id.desc()).all()
+    return all_homework
+
+# 返回指定id课程的count条讨论信息
+def get_discussion(id_, count):
+    if count > 0:
+        all_discussion = database_test.DiscussModel.query.filter(database_test.DiscussModel.discuss_class == id_).\
+            order_by(database_test.DiscussModel.id.desc()).limit(count).all()
+    else:
+        all_discussion = database_test.DiscussModel.query.filter(database_test.DiscussModel.discuss_class == id_).\
+            order_by(database_test.DiscussModel.id.desc()).all()
+    return all_discussion
+
+class CourseInformation(Resource):
+    """
+        用于获取课程信息
+    """
+    HOMEWORK = 0
+    DISCUSSION = 1
+
+    parser = reqparse.RequestParser()
+
+    # 根据type_值返回不同数据
+    def get(self, type_):
+        # 对课程进行选择
+        class_arg_parser_helper(self.parser, location=("args", ))
+        # 在query字符中写上需要的数据量
+        self.parser.add_argument("count", type=int, required=True, location=("args", ))
+        args = self.parser.parse_args()
+        class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
+        lesson = query_class_by_class_id(class_id)
+
+        if lesson is None:
+            return jsonify(ERROR="No such class")
+        # 课程表的主键
+        id_ = lesson.id
+
+        if type_ == self.HOMEWORK:
+            # 根据参数返回相应数据
+            all_homework = get_homework(id_, args['count'])
+            count = len(all_homework)
+            if count == 0:
+                return jsonify(ERROR="no homework")
+            return jsonify(count=count, homework=list(map(lambda x: x.to_dict(), all_homework)))
+
+        elif type_ == self.DISCUSSION:
+            # 返回讨论信息
+            all_discussions = get_discussion(id_, args['count'])
+            count = len(all_discussions)
+            if count == 0:
+                return jsonify(ERROR="no discussion")
+            return jsonify(count=count, discussions=list(map(lambda x: x.to_dict(), all_discussions)))
         else:
             abort(404)
 
-api.add_resource(Cource, "/course", "/course/<name>")
+api.add_resource(CourseInformation, "/api/course_info/<int:type_>")
 
 class User(Resource):
     """
@@ -68,32 +160,31 @@ class User(Resource):
     """
     parser = reqparse.RequestParser()
 
+    def get(self, name=""):
+        if name == "":
+            abort(404)
+        user = database_test.UserModel.query.filter_by(user_account=name).first()
+        if user is not None:
+            return jsonify(user=repr(user))
+        else:
+            return jsonify(ERROR="no such user")
+
     def post(self):
         self.parser.add_argument("username", required=True)
         args = self.parser.parse_args()
         user = database_test.UserModel(args['username'])
         return ret_vals_helper(database_test.insert_to_database, user, "succeed to add the user")
-        # ret_vals = database_test.insert_to_database(user)
-        # if ret_vals[0]:
-        #     return output_json(dict(user=repr(user)), 200)
-        # else:
-        #     return output_json(dict(ERROR=ret_vals[1]), 0)
 
-    def delete(self, name=""):
-        if name == "":
-            abort(404)
-        user = database_test.UserModel.query.filter_by(user_account=name).first()
-        if user is None:
-            return output_json(dict(ERROR="No such user"), 0)
-        else:
-            return ret_vals_helper(database_test.delete_from_database, user, "succeed to remove the user")
-            # ret_vals = database_test.delete_from_database(user)
-            # if ret_vals[0]:
-            #     return output_json(dict(status="succeed to delete the user"), 200)
-            # else:
-            #     return output_json(dict(ERROR=ret_vals[1]))
+    # def delete(self, name=""):
+    #     if name == "":
+    #         abort(404)
+    #     user = database_test.UserModel.query.filter_by(user_account=name).first()
+    #     if user is None:
+    #         return jsonify(ERROR="No such user")
+    #     else:
+    #         return ret_vals_helper(database_test.delete_from_database, user, "succeed to remove the user")
 
-api.add_resource(User, "/user", "/user/<name>")
+api.add_resource(User, "/api/user", "/api/user/<name>")
 
 
 class Homework(Resource):
@@ -107,23 +198,57 @@ class Homework(Resource):
     def post(self):
         self.parser.add_argument("publisher", required=True)
         self.parser.add_argument("pub_time", required=True, type=float)
-        self.parser.add_argument("hand_in_time", required=True, type=float)
+        self.parser.add_argument("hand_in_time", required=True)
         self.parser.add_argument("content", required=True)
-        self.parser.add_argument("class_name", required=True)
+
+        class_arg_parser_helper(self.parser)
         args = self.parser.parse_args()
-        from datetime import datetime
+
         user = database_test.UserModel.query.filter_by(user_account=args['publisher']).first()
         if user is None:
-            return output_json(dict(ERROR="no such user"), 0)
-        lesson = database_test.ClassModel.query.filter_by(class_name=args['class_name']).first()
+            return jsonify(ERROR="no such user")
+        class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
+        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is None:
-            return output_json(dict(ERROR="no such class"), 0)
+            return jsonify(ERROR="no such class")
+        from datetime import datetime
+        print(args['pub_time'])
+        print(datetime.now().timestamp())
         homework = database_test.HomeworkModel(user, datetime.fromtimestamp(float(args['pub_time'])),
-                                               datetime.fromtimestamp(float(args['hand_in_time'])), args['content'], lesson)
+                                               args['hand_in_time'], args['content'], lesson)
         return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
 
 
-api.add_resource(Homework, "/homework")
+api.add_resource(Homework, "/api/homework")
+
+class Discussion(Resource):
+    """
+    发布作业信息
+    """
+    # def __init__(self, publisher, content, when, lesson):
+
+    parser = reqparse.RequestParser()
+
+    def post(self):
+        self.parser.add_argument("publisher", required=True)
+        self.parser.add_argument("pub_time", required=True, type=float)
+        self.parser.add_argument("content", required=True)
+        # 用于判断是对应哪一节课程
+        class_arg_parser_helper(self.parser)
+        args = self.parser.parse_args()
+        user = database_test.UserModel.query.filter_by(user_account=args['publisher']).first()
+        if user is None:
+            return jsonify(ERROR="no such user")
+        class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
+        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+        if lesson is None:
+            return jsonify(ERROR="no such class")
+        from datetime import datetime
+        discussion = database_test.DiscussModel(user, args["content"], datetime.fromtimestamp(float(args['pub_time'])), lesson)
+        return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
+
+
+api.add_resource(Discussion, "/api/discuss")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)

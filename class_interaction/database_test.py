@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from app import app
 from datetime import datetime
 import os
+import json
 
 DIR_PATH = os.path.dirname(__file__)
 DATA_BASE_NAME = "data_base.db"
@@ -22,6 +23,7 @@ CLASS_ROOM_LENGTH = 10
 CLASS_SPAN_LENGTH = 10
 CLASS_TIME_LENGTH = 60
 CERTIFICATE_LENGTH = 6     # 6个数字组成的认证码
+TIME_STR_LENGTH = 30    # 上交时间修改为字符串
 
 USER_NAME_LENGTH = 20
 HW_CONTENT_LENGTH = 200
@@ -80,7 +82,7 @@ class UserModel(db.Model):
         self.user_certificate = generate_certificate(CERTIFICATE_LENGTH)
 
     def __repr__(self):
-        return "<User %r>" % self.user_account + self.user_certificate
+        return "<User %r>" % self.user_account + " " + self.user_certificate
 
 
 class ClassModel(db.Model):
@@ -131,10 +133,30 @@ class ClassModel(db.Model):
         self.class_teacher = teacher
         self.class_room = room
         self.class_span = span
-        self.time = time_
+        self.class_time = time_
         # 每一节课程的唯一标识
         self.class_id = str(start_year) + "_" + str(end_year) + "_" + str(semester) + "_" + self.class_number
 
+    def to_dict(self):
+        my_dict = {
+            "class_number": self.class_number,
+            "class_name": self.class_name,
+            "class_credit": self.class_credit,
+            "class_teacher": self.class_teacher,
+            "class_room": self.class_room,
+            "clss_span": self.class_span,
+            "class_time": self.class_time
+        }
+        return my_dict
+
+    def to_json(self, name=None):
+        if name is None:
+            return json.dumps(self.to_dict())
+
+        my_json = {
+            name: self.to_dict()
+        }
+        return json.dumps(my_json)
 
 
     def __repr__(self):
@@ -152,7 +174,7 @@ class HomeworkModel(db.Model):
     # 发布时间
     hw_publish_time = db.Column(db.DateTime)
     # 上交时间
-    hw_hand_in_time = db.Column(db.DateTime)
+    hw_hand_in_time = db.Column(db.String(TIME_STR_LENGTH))
     # 内容
     hw_content = db.Column(db.String(HW_CONTENT_LENGTH))
     # 图片(留作扩展)
@@ -171,9 +193,26 @@ class HomeworkModel(db.Model):
         self.hw_content = content
         self.lesson = lesson
 
+    def to_dict(self):
+        my_dict = {
+            "publisher": self.user.user_account,
+            "pub_time": int(self.hw_publish_time.timestamp()),
+            "hand_in_time": self.hw_hand_in_time,
+            "content": self.hw_content
+        }
+        return my_dict
+
+    def to_json(self, name=None):
+        if name is None:
+            return json.dumps(self.to_dict())
+
+        my_json = {
+            name: self.to_dict()
+        }
+        return json.dumps(my_json)
 
     def __repr__(self):
-        return "<Homework %r>" % self.user + self.hw_content
+        return "<Homework %r>" + self.user.user_account + self.hw_content
 
 class DiscussModel(db.Model):
 
@@ -202,8 +241,25 @@ class DiscussModel(db.Model):
         # 应该是这个时候建立了联系
         self.lesson = lesson    # backref
 
+    def to_dict(self):
+        my_dict = {
+            "publisher": self.user.user_account,
+            "content": self.discuss_content,
+            "time": int(self.discuss_time.timestamp()),
+        }
+        return my_dict
+
+    def to_json(self, name=None):
+        if name is None:
+            return json.dumps(self.to_dict())
+
+        my_json = {
+            name: self.to_dict()
+        }
+        return json.dumps(my_json)
+
     def __repr__(self):
-        return "<Discussion %r %r>" % (self.user, self.discuss_time) + "\t" + self.discuss_content
+        return "<Discussion %r %r>" % (self.user.user_account, self.discuss_content)
 
 
 def insert_to_database(thing):
@@ -227,6 +283,11 @@ def delete_from_database(thing):
         print(type(e))
         return False, str(e)
 
+def show_all_lessons():
+    all_lessons = ClassModel.query.all()
+    for lesson in all_lessons:
+        print(lesson)
+
 
 
 def test():
@@ -239,7 +300,7 @@ def test():
     discuss_nwad = DiscussModel(nwad, "How Are you ?", datetime.now(), lesson)
     discuss_junhao = DiscussModel(junhao, "I'm fine.Thanks", datetime.now().replace(minute=15), lesson)
 
-    homework = HomeworkModel(nwad, datetime.now(), datetime.now().replace(day=12), "图形学", lesson)
+    homework = HomeworkModel(nwad, datetime.now(), "下周二".replace(day=12), "图形学", lesson)
 
     ret_vats = insert_to_database(lesson)
     if not ret_vats[0]:
@@ -259,7 +320,9 @@ def get_last_inserted_record(model):
 # db.create_all()
 
 if __name__ == "__main__":
-    test()
+    pass
+    # print(datetime.now().timestamp())
+    # test()
     # now = datetime.now()
     # print(now)
     # import time
