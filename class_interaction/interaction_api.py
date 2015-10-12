@@ -5,12 +5,20 @@ from . import database_test
 from app import app
 from flask import jsonify
 from flask_restful import Api, Resource, reqparse, abort
+import hashlib
 
 database_test.db.create_all()
 
 api = Api(app)
 
 AUTHORIZE_CODE = "smallfly" # 测试用途
+
+def check_hash(hash_code, input_string):
+    result =  str(hashlib.sha256(input_string.encode("utf-8")).hexdigest())
+    if hash_code == result:
+        return True
+    else:
+        return False
 
 def ret_vals_helper(func, arg, ok_msg):
     ret_vals = func(arg)
@@ -200,6 +208,7 @@ class Homework(Resource):
         self.parser.add_argument("pub_time", required=True, type=float)
         self.parser.add_argument("hand_in_time", required=True)
         self.parser.add_argument("content", required=True)
+        self.parser.add_argument("code", required=True)  # hash_code
 
         class_arg_parser_helper(self.parser)
         args = self.parser.parse_args()
@@ -211,6 +220,11 @@ class Homework(Resource):
         lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is None:
             return jsonify(ERROR="no such class")
+        username = args['publisher']
+        timestamp = str( int(args['pub_time']) )
+        hash_code = args["code"]
+        if not check_hash(hash_code, username+timestamp):
+            return jsonify(ERROR="wrong code")
         from datetime import datetime
         # print(args['pub_time'])
         # print(datetime.now().timestamp())
@@ -233,6 +247,7 @@ class Discussion(Resource):
         self.parser.add_argument("publisher", required=True)
         self.parser.add_argument("pub_time", required=True, type=float)
         self.parser.add_argument("content", required=True)
+        self.parser.add_argument("code", required=True)
         # 用于判断是对应哪一节课程
         class_arg_parser_helper(self.parser)
         args = self.parser.parse_args()
@@ -243,6 +258,11 @@ class Discussion(Resource):
         lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is None:
             return jsonify(ERROR="no such class")
+        username = args['publisher']
+        timestamp = str( int(args["pub_time"]) )
+        hash_code = args["code"]
+        if not check_hash(hash_code, username+timestamp):
+            return jsonify(ERROR="wrong code")
         from datetime import datetime
         discussion = database_test.DiscussModel(user, args["content"], datetime.fromtimestamp(float(args['pub_time'])), lesson)
         return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
@@ -251,4 +271,8 @@ class Discussion(Resource):
 api.add_resource(Discussion, "/api/discuss")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    input_data = "e6f6a7a75c3a02b07bf3104be668ae5a9b02723b2fa6d00dedd908d7eaa04846"
+    if check_hash(input_data, "smallfly2nd"):
+        print("It's right")
+    else:
+        print("It's not right")
