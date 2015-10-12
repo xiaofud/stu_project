@@ -15,7 +15,7 @@ AUTHORIZE_CODE = "smallfly" # 测试用途
 def ret_vals_helper(func, arg, ok_msg):
     ret_vals = func(arg)
     if ret_vals[0]:
-        database_test.show_all_lessons()
+        # database_test.show_all_lessons()
         return jsonify(status=ok_msg)
     else:
         return jsonify(ERROR=ret_vals[1])
@@ -212,8 +212,8 @@ class Homework(Resource):
         if lesson is None:
             return jsonify(ERROR="no such class")
         from datetime import datetime
-        print(args['pub_time'])
-        print(datetime.now().timestamp())
+        # print(args['pub_time'])
+        # print(datetime.now().timestamp())
         homework = database_test.HomeworkModel(user, datetime.fromtimestamp(float(args['pub_time'])),
                                                args['hand_in_time'], args['content'], lesson)
         return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
