@@ -2,3 +2,5 @@
 credit/syllabus_dir/
 
 *.pyc
+
+*.db
