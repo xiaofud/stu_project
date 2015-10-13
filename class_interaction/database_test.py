@@ -305,6 +305,7 @@ def insert_to_database(thing):
         db.session.rollback()
         print("insert failed")
         print(type(e))
+        print(e)
         return False, str(e)
 
 def delete_from_database(thing):
