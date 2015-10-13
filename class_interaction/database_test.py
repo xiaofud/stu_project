@@ -294,7 +294,7 @@ def query_by_id(model, id_):
 
 def insert_to_database(thing):
     try:
-        print("inserting " + thing)
+        print("inserting " + repr(thing))
         db.session.add(thing)
         db.session.commit()
         print("inserted!")
