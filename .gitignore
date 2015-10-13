@@ -3,4 +3,5 @@ credit/syllabus_dir/
 
 *.pyc
 
+# 不跟踪数据库文件
 *.db
