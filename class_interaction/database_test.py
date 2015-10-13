@@ -82,7 +82,7 @@ class UserModel(db.Model):
         self.user_certificate = generate_certificate(CERTIFICATE_LENGTH)
 
     def __repr__(self):
-        return "<User %r>" % self.user_account + " " + self.user_certificate
+        return "<User %r>" % self.user_account
 
 
 class ClassModel(db.Model):
@@ -139,6 +139,7 @@ class ClassModel(db.Model):
 
     def to_dict(self):
         my_dict = {
+            "id": self.id,
             "class_number": self.class_number,
             "class_name": self.class_name,
             "class_credit": self.class_credit,
@@ -195,6 +196,7 @@ class HomeworkModel(db.Model):
 
     def to_dict(self):
         my_dict = {
+            "id": self.id ,     # 这条数据在数据库中的主键
             "publisher": self.user.user_account,
             "pub_time": int(self.hw_publish_time.timestamp()),
             "hand_in_time": self.hw_hand_in_time,
@@ -212,7 +214,7 @@ class HomeworkModel(db.Model):
         return json.dumps(my_json)
 
     def __repr__(self):
-        return "<Homework %r>" + self.user.user_account + self.hw_content
+        return "<Homework by %r>" + self.user.user_account
 
 class DiscussModel(db.Model):
 
@@ -243,6 +245,7 @@ class DiscussModel(db.Model):
 
     def to_dict(self):
         my_dict = {
+            "id": self.id,
             "publisher": self.user.user_account,
             "content": self.discuss_content,
             "time": int(self.discuss_time.timestamp()),
@@ -259,17 +262,48 @@ class DiscussModel(db.Model):
         return json.dumps(my_json)
 
     def __repr__(self):
-        return "<Discussion %r %r>" % (self.user.user_account, self.discuss_content)
+        return "<Discussion by %r>" % self.user.user_account
+
+
+def query_homework_by_id(id_):
+    homework = query_by_id(HomeworkModel, id_)
+    return homework
+
+def query_discussion_by_id(id_):
+    discussion = query_by_id(DiscussModel, id_)
+    return discussion
+
+def query_class_by_id(id_):
+    class_ = query_by_id(ClassModel, id_)
+    return class_
+
+def query_user_by_id(id_):
+    user = query_by_id(UserModel, id_)
+    return user
+
+
+def query_by_id(model, id_):
+    """
+    返回表中主键值为id_的记录
+    :param model: 表的模型
+    :param id_: 主键
+    :return:    记录 或者 None
+    """
+    return model.query.filter_by(id=id_).first()
 
 
 def insert_to_database(thing):
     try:
+        print("inserting " + thing)
         db.session.add(thing)
         db.session.commit()
+        print("inserted!")
+
         return True, None
     except Exception as e:
         # don't forget to do this
         db.session.rollback()
+        print("insert failed")
         print(type(e))
         return False, str(e)
 
@@ -291,7 +325,7 @@ def show_all_lessons():
 
 
 def test():
-    db.drop_all()
+    # db.drop_all()
     db.create_all()
     nwad = UserModel("拂晓")
     junhao = UserModel("俊皓")

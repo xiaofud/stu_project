@@ -6,6 +6,7 @@ from app import app
 from flask import jsonify
 from flask_restful import Api, Resource, reqparse, abort
 import hashlib
+import os
 
 database_test.db.create_all()
 
@@ -269,6 +270,24 @@ class Discussion(Resource):
 
 
 api.add_resource(Discussion, "/api/discuss")
+
+class VersionControl(Resource):
+    """
+        用于控制app升级的api
+    """
+    VERSION_FILE = "version.txt"
+
+    # 返回最新的版本号 versionCode 整型
+    def get(self):
+        base_dir = os.path.dirname(__file__)
+        filename = os.path.join(base_dir, self.VERSION_FILE)
+        print(filename)
+        with open(filename) as f:
+            version_info = f.readlines()
+        return jsonify(versionCode=version_info[0].strip(), versionName=version_info[1].strip())
+
+api.add_resource(VersionControl, "/api/version", "/api/version/")
+
 
 if __name__ == "__main__":
     input_data = "e6f6a7a75c3a02b07bf3104be668ae5a9b02723b2fa6d00dedd908d7eaa04846"
