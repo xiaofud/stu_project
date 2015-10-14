@@ -6,7 +6,7 @@ from app import app
 from flask import jsonify
 from flask_restful import Api, Resource, reqparse, abort
 import hashlib
-import os
+import os, time
 
 database_test.db.create_all()
 
@@ -284,7 +284,17 @@ class VersionControl(Resource):
         print(filename)
         with open(filename) as f:
             version_info = f.readlines()
-        return jsonify(versionCode=version_info[0].strip(), versionName=version_info[1].strip())
+        version_code = version_info[0].strip()
+        version_name = version_info[1].strip()
+        version_releaser = version_info[2].strip()
+        version_description = "".join(version_info[3:])     # 第四行起的都是描述信息
+
+        # 发布日期
+        release_time = int (time.time()) # 秒数
+
+        return jsonify(versionCode=version_code, versionName=version_name,
+                        versionDescription=version_description, versionDate=release_time,
+                       versionReleaser=version_releaser)
 
 api.add_resource(VersionControl, "/api/version", "/api/version/")
 
