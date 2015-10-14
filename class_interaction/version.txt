@@ -1,8 +1,9 @@
-1
-ver 1.0
-smallfly
-http://10.22.27.65/share/syllabus.apk
-添加自动更新功能
-更换壁纸功能
-设置默认课表功能
-指定缓存文件删除功能
+{
+    "versionCode": 1,
+    "versionName": "ver 1.0",
+    "versionReleaser": "smallfly",
+    "download_address": "http://10.22.27.65/share/syllabus.apk",
+    "apk_file_name": "syllabus_v1.0.apk",
+    "versionDate": 1444797144,
+    "description": "添加自动更新功能\n更换壁纸功能\n设置默认课表功能\n指定缓存文件删除功能"
+}
