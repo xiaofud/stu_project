@@ -281,8 +281,9 @@ class VersionControl(Resource):
     def get(self):
         base_dir = os.path.dirname(__file__)
         filename = os.path.join(base_dir, self.VERSION_FILE)
-        print(filename)
-        with open(filename) as f:
+        # print(filename)
+        # 注意 在 Linux 可能需要 显式 指定这个编码，不然会用ascii去解码
+        with open(filename, encoding="utf-8") as f:
             version_info = f.readlines()
         version_code = version_info[0].strip()
         version_name = version_info[1].strip()
