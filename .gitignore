@@ -5,3 +5,6 @@ credit/syllabus_dir/
 
 # 不跟踪数据库文件
 *.db
+
+# version_file
+class_interaction/version.txt
