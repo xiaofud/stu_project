@@ -280,22 +280,6 @@ class VersionControl(Resource):
 
     # 返回最新的版本号 versionCode 整型
     def get(self):
-        base_dir = os.path.dirname(__file__)
-        filename = os.path.join(base_dir, self.VERSION_FILE)
-        # print(filename)
-        # 注意 在 Linux 可能需要 显式 指定这个编码，不然会用ascii去解码
-        # with open(filename, encoding="utf-8") as f:
-        #     version_info = f.readlines()
-        # version_code = version_info[0].strip()
-        # version_name = version_info[1].strip()
-        # version_releaser = version_info[2].strip()
-        # download_address = version_info[3].strip()
-        # version_description = "".join(version_info[4:])     # 第五行起的都是描述信息
-
-        # 发布日期
-        # release_time = int (time.time()) # 秒数
-
-        # 改用json形式
         version_obj = load_version.load_version()
 
         return jsonify(versionCode=version_obj['versionCode'], versionName=version_obj['versionName'],
