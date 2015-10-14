@@ -288,14 +288,15 @@ class VersionControl(Resource):
         version_code = version_info[0].strip()
         version_name = version_info[1].strip()
         version_releaser = version_info[2].strip()
-        version_description = "".join(version_info[3:])     # 第四行起的都是描述信息
+        download_address = version_info[3].strip()
+        version_description = "".join(version_info[4:])     # 第五行起的都是描述信息
 
         # 发布日期
         release_time = int (time.time()) # 秒数
 
         return jsonify(versionCode=version_code, versionName=version_name,
                         versionDescription=version_description, versionDate=release_time,
-                       versionReleaser=version_releaser)
+                       versionReleaser=version_releaser, download_address=download_address)
 
 api.add_resource(VersionControl, "/api/version", "/api/version/")
 
