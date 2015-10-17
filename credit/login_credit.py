@@ -66,6 +66,7 @@ def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, 
     :return:
     """
     try:
+        # 对参数进行检查
         if semester not in (AUTUMN, SPRING, SUMMER):
             return False, WRONG_SEMESTER
 
@@ -75,6 +76,7 @@ def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, 
         if not isinstance(start_year, int) or not isinstance(end_year, int) or end_year <= start_year:
             return False, WRONG_DATE
 
+        # 登录学分制需要POST的数据
         postdata = urllib.parse.urlencode({
             "txtUserID": user,
             "txtUserPwd": passwd,
@@ -85,22 +87,18 @@ def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, 
             '__VIEWSTATEGENERATOR': 'FBAF4793',
             '__EVENTVALIDATION': '/wEWBAKo25zdBALT8dy8BQLG8eCkDwKk07qFCRXt1F3RFYVdjuYasktKIhLnziqd'
         })
+        # 需要转换为字节流
         postdata = postdata.encode("utf-8")
-        cookie = http.cookiejar.CookieJar()
-        handler = urllib.request.HTTPCookieProcessor(cookie)
+        cookie_jar = http.cookiejar.CookieJar()
+        handler = urllib.request.HTTPCookieProcessor(cookie_jar)
         opener = urllib.request.build_opener(handler)
         # 此处的open方法同urllib2的urlopen方法，也可以传入request
         resp = opener.open(HOSTADDR, postdata, timeout=timeout)
+        # 登录后的情况
         content = resp.read()
         if content.__contains__(b'alert'):
             return False, WRONG_PASSWORD
-
-        # print(resp.read())
-        # 打印所有cookie的内容
-        # for item in cookie:
-        #     print('Name = ' + item.name)
-        #     print('Value = ' + item.value)
-
+        # 查看课表
         resp = opener.open('http://credit.stu.edu.cn/Elective/MyCurriculumSchedule.aspx', timeout=timeout)
         content = resp.read()
         assert isinstance(content, bytes)
@@ -138,6 +136,7 @@ def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, 
         print(type(err), str(err))
         return False, TIME_OUT
 
+# 缓存课程文件, JSON 格式
 def save_file(filename, data):
     if not os.path.exists(CACHE_DIR):
         try:
@@ -163,7 +162,7 @@ def parse(content):
     return lessons
 
 if __name__ == "__main__":
-    ret_val = get_syllabus("14xfdeng", "Smallfly2nd", start_year=2014, end_year=2015, semester=AUTUMN)
+    ret_val = get_syllabus("xxx", "xxx", start_year=2014, end_year=2015, semester=AUTUMN)
     if ret_val[0]:
         source = ret_val[1]
         lessons = parse(source.decode(WEBSITE_ENCODING))     # 学校的那个网站用的是GBK编码，有点坑爹
