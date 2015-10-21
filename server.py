@@ -1,7 +1,8 @@
 # coding=utf-8
 from app import app
 from views import views
-import class_interaction.interaction_api
+import class_interaction.interaction_api_v1
+# import stu_admin.syllabus_admin
 
 # 保存课表文件
 views.login_credit.CACHE_SYLLABUS = True

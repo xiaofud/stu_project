@@ -7,7 +7,6 @@ from flask import jsonify
 from flask_restful import Api, Resource, reqparse, abort
 from . import load_version  # 读取版本信息
 import hashlib
-import os, time
 
 database_test.db.create_all()
 
@@ -183,7 +182,7 @@ class User(Resource):
         self.parser.add_argument("username", required=True)
         args = self.parser.parse_args()
         user = database_test.UserModel(args['username'])
-        return ret_vals_helper(database_test.insert_to_database, user, "succeed to add the user")
+        return ret_vals_helper(database_test.insert_to_database, user, user.user_certificate)
 
     # def delete(self, name=""):
     #     if name == "":

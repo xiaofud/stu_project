@@ -64,7 +64,7 @@ class UserModel(db.Model):
     # 用户账号
     user_account = db.Column(db.String(USER_NAME_LENGTH), unique=True)
 
-    # 凭证 10 个随机数字组成的认证码
+    # 凭证 6 个随机数字组成的认证码
     user_certificate = db.Column(db.String(CERTIFICATE_LENGTH))
 
     # 用户有效性 取值 0 1, 用于封禁用户

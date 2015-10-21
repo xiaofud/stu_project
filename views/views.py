@@ -4,6 +4,7 @@ from flask import render_template, request, jsonify, url_for, redirect, make_res
 from  credit import login_credit
 from credit import get_course_info, authentication
 from oa import oa_main
+from class_interaction import database_test
 
 
 @app.errorhandler(404)
@@ -39,7 +40,22 @@ def query():
             if len(lessons) == 0:
                 return jsonify(ERROR="No classes")
             else:
+                # 课程的json数据
                 lessons_jsonfy = get_course_info.Lesson.jsonfy_all(lessons)
+                # 这里插入用户
+                account = database_test.UserModel.query.filter_by(user_account=user).first()
+                if account is None:
+                    account = database_test.UserModel(user)
+                    # 加入数据库
+                    ret_vals = database_test.insert_to_database(account)
+                    if ret_vals[0]: # 插入成功
+                        # "token":"279456"
+                        token_json = "\"token\":" + "\"{}\"".format(account.user_certificate)
+                        lessons_jsonfy = lessons_jsonfy[: -1] + "," + token_json + "}"
+                # the user exists
+                else:
+                    token_json = "\"token\":" + "\"{}\"".format(account.user_certificate)
+                    lessons_jsonfy = lessons_jsonfy[: -1] + "," + token_json + "}"
             # return render_template("show_classes.html", lessons=lessons)
                 if login_credit.CACHE_SYLLABUS:
                     filename = user + "_" + "{}_{}".format(start_year, end_year) + "_" + str(semester)
