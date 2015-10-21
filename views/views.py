@@ -54,6 +54,11 @@ def query():
                         lessons_jsonfy = lessons_jsonfy[: -1] + "," + token_json + "}"
                 # the user exists
                 else:
+                    # 生成新的token
+                    new_token = database_test.generate_certificate(database_test.CERTIFICATE_LENGTH)
+                    account.user_certificate = new_token
+                    # 提交更改
+                    database_test.db.session.commit()
                     token_json = "\"token\":" + "\"{}\"".format(account.user_certificate)
                     lessons_jsonfy = lessons_jsonfy[: -1] + "," + token_json + "}"
             # return render_template("show_classes.html", lessons=lessons)
