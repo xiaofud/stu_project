@@ -28,6 +28,8 @@ WRONG_SEMESTER = 1
 WRONG_PASSWORD = 2
 WRONG_DATE = 3
 TIME_OUT = 4
+SYSTEM_BROKEN = 5
+NOT_ALLOWED = 6
 
 def err_srt(code):
     if code == EMPTY_DATA:
@@ -40,6 +42,10 @@ def err_srt(code):
         return "the date is wrong"
     elif code == TIME_OUT:
         return "timeout"
+    elif code == SYSTEM_BROKEN:
+        return "credit system broken"
+    elif code == NOT_ALLOWED:
+        return "account not exist or not allowed"
 
 def convert_encoding(data, from_, to):
     """
@@ -96,8 +102,15 @@ def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, 
         resp = opener.open(HOSTADDR, postdata, timeout=timeout)
         # 登录后的情况
         content = resp.read()
-        if content.__contains__(b'alert'):
+        wrong_passwd = "认证服务器密码错误".encode(WEBSITE_ENCODING)
+        if content.__contains__(wrong_passwd):
             return False, WRONG_PASSWORD
+        # 该账号不存在或者不允许被使用学分制系统
+        elif content.__contains__(b'not allowed to access this system'):
+            return False, NOT_ALLOWED
+        elif content.__contains__(b'alert'):    # 提示欠费那个错误
+            return False, SYSTEM_BROKEN
+
         # 查看课表
         resp = opener.open('http://credit.stu.edu.cn/Elective/MyCurriculumSchedule.aspx', timeout=timeout)
         content = resp.read()
