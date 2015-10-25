@@ -1,6 +1,7 @@
 # coding=utf-8
 # api的第一个版本
 import time
+from datetime import datetime
 from .interaction_api import *
     # api, Resource, class_arg_parser_helper,\
     # database_test, jsonify, ret_vals_helper, reqparse
@@ -50,7 +51,7 @@ class HomeworkV1(Resource):
         # from datetime import datetime
         # print(args['pub_time'])
         # print(datetime.now().timestamp())
-        homework = database_test.HomeworkModel(user, int(time.time()),
+        homework = database_test.HomeworkModel(user, datetime.fromtimestamp(time.time()),
                                                args['hand_in_time'], args['content'], lesson)
         return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
 
@@ -90,9 +91,9 @@ class DiscussionV1(Resource):
         if not check_token(username, user_token):
             return jsonify(ERROR="wrong token")
 
-        # from datetime import datetime
 
-        discussion = database_test.DiscussModel(user, args["content"], int(time.time()), lesson)
+
+        discussion = database_test.DiscussModel(user, args["content"], datetime.fromtimestamp(time.time()), lesson)
         return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
 
 
