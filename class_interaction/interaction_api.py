@@ -21,13 +21,20 @@ def check_hash(hash_code, input_string):
     else:
         return False
 
-def ret_vals_helper(func, arg, ok_msg):
+def ret_vals_helper(func, arg, ok_msg, return_jsonify=True):
+    # 尝试将将数据写入数据库
     ret_vals = func(arg)
     if ret_vals[0]:
         # database_test.show_all_lessons()
-        return jsonify(status=ok_msg)
+        if return_jsonify:
+            return jsonify(status=ok_msg)
+        else:
+            return True, None
     else:
-        return jsonify(ERROR=ret_vals[1])
+        if return_jsonify:
+            return jsonify(ERROR=ret_vals[1])
+        else:
+            return False, ret_vals[1]
 
 def class_arg_parser_helper(parser, location=('json', 'values',)):
     parser.add_argument("number", required=True, location=location)
@@ -231,8 +238,13 @@ class Homework(Resource):
         # print(datetime.now().timestamp())
         homework = database_test.HomeworkModel(user, datetime.fromtimestamp(float(args['pub_time'])),
                                                args['hand_in_time'], args['content'], lesson)
-        return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
-
+        # return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
+        ret_vals = ret_vals_helper(database_test.insert_to_database, homework, "", False)
+        if ret_vals[0]:
+            # 返回 homework 在表中的主键
+            return jsonify(status=homework.id)
+        else:
+            return jsonify(ERROR=ret_vals[1])
 
 api.add_resource(Homework, "/api/homework")
 
@@ -266,8 +278,13 @@ class Discussion(Resource):
             return jsonify(ERROR="wrong code")
         from datetime import datetime
         discussion = database_test.DiscussModel(user, args["content"], datetime.fromtimestamp(float(args['pub_time'])), lesson)
-        return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
-
+        # return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
+        ret_vals = ret_vals_helper(database_test.insert_to_database, discussion, "", False)
+        if ret_vals[0]:
+            # 返回 discussion 在表中的主键
+            return jsonify(status=discussion.id)
+        else:
+            return jsonify(ERROR=ret_vals[1])
 
 api.add_resource(Discussion, "/api/discuss")
 

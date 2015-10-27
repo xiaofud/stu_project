@@ -12,6 +12,8 @@ FILE_NAME = os.path.join(DIR_PATH, DATA_BASE_NAME).replace("\\", "/")
 DATA_BASE_URI = "sqlite:///" + FILE_NAME
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATA_BASE_URI
+# suppress the warning
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 CLASS_ID_LENGTH = 40
@@ -32,9 +34,13 @@ DISCUSS_CONTENT_LENGTH = 140
 
 SEMESTERS = {
     "spring": 2,
-    "summber": 3,
+    "summer": 3,
     "autumn": 1
 }
+
+ADMINS = [
+    "14xfdeng", "14jhwang"
+]
 
 def generate_certificate(length):
     import random
@@ -125,7 +131,6 @@ class ClassModel(db.Model):
     class_members = db.relationship("UserModel", secondary=user_class_association_table,
                                     backref="lessons")
 
-
     def __init__(self, number, name, credit, teacher, room, span, time_, start_year, end_year, semester):
         self.class_number = number
         self.class_name = name
@@ -159,9 +164,9 @@ class ClassModel(db.Model):
         }
         return json.dumps(my_json)
 
-
     def __repr__(self):
         return "<Lesson %r>" % self.class_name + str(self.class_homework) + str(self.class_discussion)
+
 
 class HomeworkModel(db.Model):
 
@@ -281,6 +286,8 @@ def query_user_by_id(id_):
     user = query_by_id(UserModel, id_)
     return user
 
+def query_user_by_name(name):
+    return UserModel.query.filter_by(user_account=name).first()
 
 def query_by_id(model, id_):
     """

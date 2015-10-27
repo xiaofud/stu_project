@@ -22,6 +22,8 @@ class HomeworkV1(Resource):
 
     parser = reqparse.RequestParser()
 
+    delete_parser = reqparse.RequestParser()
+
     def post(self):
         self.parser.add_argument("publisher", required=True)
         self.parser.add_argument("pub_time", required=True, type=float)
@@ -53,7 +55,13 @@ class HomeworkV1(Resource):
         # print(datetime.now().timestamp())
         homework = database_test.HomeworkModel(user, datetime.fromtimestamp(time.time()),
                                                args['hand_in_time'], args['content'], lesson)
-        return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
+        # return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
+        ret_vals = ret_vals_helper(database_test.insert_to_database, homework, "", False)
+        if ret_vals[0]:
+            # 返回 homework 在表中的主键
+            return jsonify(status=homework.id)
+        else:
+            return jsonify(ERROR=ret_vals[1])
 
 api.add_resource(HomeworkV1, "/api/v1.0/homework")
 
@@ -94,7 +102,64 @@ class DiscussionV1(Resource):
 
 
         discussion = database_test.DiscussModel(user, args["content"], datetime.fromtimestamp(time.time()), lesson)
-        return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
-
+        # return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
+        ret_vals = ret_vals_helper(database_test.insert_to_database, discussion, "", False)
+        if ret_vals[0]:
+            # 返回 discussion 在表中的主键
+            return jsonify(status=discussion.id)
+        else:
+            return jsonify(ERROR=ret_vals[1])
 
 api.add_resource(DiscussionV1, "/api/v1.0/discuss")
+
+class DeleteResource(Resource):
+
+    delete_parser = reqparse.RequestParser()
+    # <int:type_>  取值为 0(代表作业信息) 1(代表讨论信息)
+    TYPE_HOMEWORK = 0
+    TYPE_DISCUSSION = 1
+
+    def delete(self, type_):
+        # 删除信息
+        # 在数据库里面的主键
+        self.delete_parser.add_argument("resource_id", type=int, required=True)
+        # 用户名，要匹配发布者，或者管理员
+        self.delete_parser.add_argument("user", required=True)
+        # 用户的token
+        self.delete_parser.add_argument("token", required=True)
+
+        args = self.delete_parser.parse_args()
+
+        model = None
+        # 先获取这个资源
+        # 删除作业
+        if type_ == DeleteResource.TYPE_HOMEWORK:
+            model = database_test.HomeworkModel
+        elif type_ == DeleteResource.TYPE_DISCUSSION:
+            model = database_test.DiscussModel
+
+        resource = database_test.query_by_id(model, args['resource_id'])
+        if resource is None:
+            return jsonify(ERROR="no such resource")
+
+        # 检查用户
+        request_user = args['user']
+        user = database_test.query_user_by_name(request_user)
+        if user is None:
+            return jsonify(ERROR="no such user")
+        # 普通用户没有权限删除其他人的信息
+        if user != resource.user and user.user_account not in database_test.ADMINS:
+            return jsonify(ERROR="not authorized: no such user or user not match")
+        # token不匹配
+        if args['token'] != user.user_certificate:
+            print(user.user_certificate)
+            return jsonify(ERROR="not authorized: wrong token")
+
+        # 尝试删除
+        ret_vals = database_test.delete_from_database(resource)
+        if ret_vals[0]:
+            return jsonify(status="deleted")
+        else:
+            return jsonify(ERROR=ret_vals[1])
+
+api.add_resource(DeleteResource, "/api/v1.0/delete/<int:type_>")

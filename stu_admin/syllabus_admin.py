@@ -5,6 +5,7 @@ from flask_admin.contrib.sqla import ModelView
 from class_interaction import database_test
 
 admin = Admin(app, name="syllabus_test", template_mode="bootstrap3")
+admin.add_view(ModelView(database_test.ClassModel, database_test.db.session))
 admin.add_view(ModelView(database_test.UserModel, database_test.db.session))
 admin.add_view(ModelView(database_test.DiscussModel, database_test.db.session))
 admin.add_view(ModelView(database_test.HomeworkModel, database_test.db.session))
