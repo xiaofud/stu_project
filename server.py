@@ -4,7 +4,7 @@ from views import views
 # web api
 import class_interaction.interaction_api_v1
 # admin
-from stu_admin import syllabus_admin
+# from stu_admin import syllabus_admin
 # import stu_admin.syllabus_admin
 
 # 保存课表文件
