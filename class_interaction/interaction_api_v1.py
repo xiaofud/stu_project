@@ -163,3 +163,9 @@ class DeleteResource(Resource):
             return jsonify(ERROR=ret_vals[1])
 
 api.add_resource(DeleteResource, "/api/v1.0/delete/<int:type_>")
+
+class Broadcast(Resource):
+    """
+        用于在所有课程上广播(公共聊天区域)
+    """
+    pass
