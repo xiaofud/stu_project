@@ -1,10 +1,12 @@
 # coding=utf-8
 from app import app
 from flask import render_template, request, jsonify, url_for, redirect, make_response, send_from_directory
-from  credit import login_credit
-from credit import get_course_info, authentication
+# from credit import login_credit
+from credit import class_info_parser, authentication
 from oa import oa_main
 from class_interaction import database_test
+from credit import syllabus_getter
+from credit import error_string
 
 
 @app.errorhandler(404)
@@ -33,15 +35,15 @@ def query():
         end_year = int(end_year)
         semester = int(request.form['semester'])
         print(user, start_year, end_year, semester)
-        ret_val = login_credit.get_syllabus(user, passwd, start_year=start_year, end_year=end_year, semester=semester, timeout=5)
+        ret_val = syllabus_getter.get_syllabus(user, passwd, start_year=start_year, end_year=end_year, semester=semester, timeout=5)
         if ret_val[0]:
             content = ret_val[1]
-            lessons = login_credit.parse(content.decode("UTF-8"))
+            lessons = syllabus_getter.parse(content.decode("UTF-8"))
             if len(lessons) == 0:
                 return jsonify(ERROR="No classes")
             else:
                 # 课程的json数据
-                lessons_jsonfy = get_course_info.Lesson.jsonfy_all(lessons)
+                lessons_jsonfy = class_info_parser.Lesson.jsonfy_all(lessons)
                 # 这里插入用户
                 account = database_test.UserModel.query.filter_by(user_account=user).first()
                 if account is None:
@@ -62,12 +64,12 @@ def query():
                     token_json = "\"token\":" + "\"{}\"".format(account.user_certificate)
                     lessons_jsonfy = lessons_jsonfy[: -1] + "," + token_json + "}"
             # return render_template("show_classes.html", lessons=lessons)
-                if login_credit.CACHE_SYLLABUS:
+                if syllabus_getter.CACHE_SYLLABUS:
                     filename = user + "_" + "{}_{}".format(start_year, end_year) + "_" + str(semester)
-                    login_credit.save_file(filename, lessons_jsonfy)
+                    syllabus_getter.save_file(filename, lessons_jsonfy)
                 return lessons_jsonfy
         else:
-            return jsonify(ERROR=login_credit.err_srt(ret_val[1]))
+            return jsonify(ERROR=error_string.err_srt(ret_val[1]))
     return render_template('login.html')
 
 # 办公自动化
