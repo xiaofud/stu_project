@@ -7,6 +7,7 @@ from oa import oa_main
 from class_interaction import database_test
 from credit import syllabus_getter
 from credit import error_string
+from credit import grade_getter
 
 
 @app.errorhandler(404)
@@ -21,6 +22,7 @@ def index():
     urls['syllabus'] = url_for('query', _external=True)
     urls['oa'] = url_for('get_updated_information', _external=True)
     urls['auth'] = url_for('stu_auth', _external=True)
+    urls['grade'] = url_for('query_grades', _external=True)
     return render_template('home.html', urls=urls)
 
 # 课程表
@@ -97,6 +99,18 @@ def stu_auth():
                 return jsonify(status="timeout")
     else:
         return render_template("auth.html")
+
+@app.route("/grade", methods=["GET", "POST"])
+def query_grades():
+    if request.method == "GET":
+        return render_template("grade.html")
+    else:
+        username = request.form["username"]
+        password = request.form["password"]
+        ret_val = grade_getter.get_grades_raw_data(username, password, 7)
+        if not ret_val[0]:
+            return jsonify(ERROR=error_string.err_srt(ret_val[1]))
+        return jsonify(GRADES=grade_getter.parse_grades(ret_val[1]))
 
 @app.route("/qr")
 def get_qr_code():

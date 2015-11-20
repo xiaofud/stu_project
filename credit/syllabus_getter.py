@@ -9,7 +9,7 @@ from .login_credit import login_credit
 from . import class_info_parser
 from . import error_string
 
-# HOST_ADDRESS = 'http://credit.stu.edu.cn/portal/stulogin.aspx'
+
 # 1(秋季学期) 2(春季学期) 3(夏季学期)
 AUTUMN = 1
 SPRING = 2

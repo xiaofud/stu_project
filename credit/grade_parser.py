@@ -15,14 +15,22 @@ TEST_DATA = """
 
 from html.parser import HTMLParser
 
+# 1(秋季学期) 2(春季学期) 3(夏季学期)
+AUTUMN = 1
+SPRING = 2
+SUMMER = 3
+
 class Grade(object):
 
-    def __init__(self, class_num, class_name, class_teacher, class_grade, class_credit):
+    def __init__(self, class_num, class_name, class_teacher, class_grade, class_credit, years, semester):
         self.class_num = class_num
         self.class_name = class_name
         self.class_teacher = class_teacher
         self.class_grade = class_grade
         self.class_credit = class_credit
+
+        self.years = years
+        self.semester = semester
 
     def to_dict(self):
         return {
@@ -30,7 +38,9 @@ class Grade(object):
             "class_name": self.class_name,
             "class_teacher": self.class_teacher,
             "class_grade": self.class_grade,
-            "class_credit": self.class_credit
+            "class_credit": self.class_credit,
+            "years": self.years,
+            "semester": self.semester
         }
 
     def __repr__(self):
@@ -41,7 +51,7 @@ class GradeParser(HTMLParser):
         用于解析成绩
     """
 
-    def __init__(self):
+    def __init__(self, years, semester):
         
         super(GradeParser, self).__init__()
 
@@ -61,7 +71,10 @@ class GradeParser(HTMLParser):
         self.class_grade = None
         self.class_credit = None
 
-    def clear(self):
+        self.years = years
+        self.semester = semester
+
+    def clear(self, years, semester):
         """
             重置整个parser的状态
         :return:    None
@@ -74,14 +87,20 @@ class GradeParser(HTMLParser):
         self.class_grade = None
         self.class_credit = None
 
-    def get_grades(self, raw_data):
+        self.years = years
+        self.semester = semester
+
+    def get_grades(self, raw_data, years, semester):
         """
             封装了对feed的调用，会在完成后重置整个parser的状态
         :return:
         """
+        self.years = years
+        self.semester = semester
         self.feed(raw_data)
         grades = self.data
-        self.clear()
+        self.clear(years, semester)
+        self.reset()
         return grades
 
 
@@ -109,7 +128,9 @@ class GradeParser(HTMLParser):
                 self.class_grade = data
             elif self.point == 4:
                 self.class_credit = data
-                self.data.append(Grade(self.class_num, self.class_name, self.class_teacher, self.class_grade, self.class_credit))
+                grade = Grade(self.class_num, self.class_name, self.class_teacher,
+                                       self.class_grade, self.class_credit, self.years,self.semester)
+                self.data.append(grade.to_dict())
 
             # 变化point的指向
             if self.point == 4:
@@ -121,8 +142,8 @@ class GradeParser(HTMLParser):
 
 
 if __name__ == "__main__":
-    parser = GradeParser()
-    print(parser.get_grades(TEST_DATA))
+    parser = GradeParser("2014-2015", "3")
+    print(parser.get_grades(TEST_DATA, "2014-2015", "3"))
 
 
 

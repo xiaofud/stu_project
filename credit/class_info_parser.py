@@ -59,11 +59,6 @@ class Lesson(object):
         self.schedule = cls_schedule
 
     def __str__(self):
-        # cls_str = 'class name: ' + self.name + '\n' + 'class number: ' + self.num + '\n' + 'class credit:' + str(self.credit) +'\n' + 'teacher: ' + self.teacher\
-        # + '\n' + 'classroom: ' + self.room + '\n'
-        # for day in self.schedule:
-        #     if self.schedule[day] != "":
-        #         cls_str += str(day) + " : " + self.schedule[day]
         cls_str = 'class name: ' + self.name + '\n' + 'teacher: '  + self.teacher + '\n' + 'class number: ' + str(self.num) + '\n' + 'class room: ' + self.room + "\n"\
                 + 'duration: ' + self.duration + '\n'
         for day in self.schedule:
@@ -143,10 +138,6 @@ class ClassParser(HTMLParser):  # 空标签会被跳过
                 # print(lesson)
                 self.lesson = lesson
 
-    # def close(self):
-        # self.clear()
-        # super().close()
-
 
     def clear(self):
         # print("cleared")
@@ -154,21 +145,6 @@ class ClassParser(HTMLParser):  # 空标签会被跳过
         self.cur_tag = ''
         self.count = -1
         self.data = []
-
-
-class Parser(HTMLParser):
-
-    count = 0
-
-    def handle_starttag(self, tag, attrs):
-        print('start',tag)
-
-    def handle_endtag(self, tag):
-        print('end',tag)
-
-    def handle_data(self, data):
-        self.count += 1
-        print(self.count, data)
 
 
 
