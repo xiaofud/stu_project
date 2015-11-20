@@ -5,6 +5,7 @@ import http.client
 import http.cookiejar
 from socket import _GLOBAL_DEFAULT_TIMEOUT
 from . import get_course_info
+# import get_course_info
 import os
 
 
@@ -62,30 +63,18 @@ def convert_encoding(data, from_, to):
 
     return tmp
 
-
-def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, timeout=_GLOBAL_DEFAULT_TIMEOUT):
+def login_credit(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
     """
-    登录学分制网站
-    :param user:
-    :param passwd:
-    :param semester: 可选的值有 AUTUMN = 1 SPRING = 2 SUMMER = 3
-    :return:
+        登陆学分制，返回相应的opener
+    :param username:    用户名
+    :param password:    密码
+    :return:    True, opener; False, Error_Code
     """
     try:
-        # 对参数进行检查
-        if semester not in (AUTUMN, SPRING, SUMMER):
-            return False, WRONG_SEMESTER
-
-        if user.strip() == "" or passwd.strip() == "":
-            return False, EMPTY_DATA
-
-        if not isinstance(start_year, int) or not isinstance(end_year, int) or end_year <= start_year:
-            return False, WRONG_DATE
-
         # 登录学分制需要POST的数据
-        postdata = urllib.parse.urlencode({
-            "txtUserID": user,
-            "txtUserPwd": passwd,
+        post_data = urllib.parse.urlencode({
+            "txtUserID": username,
+            "txtUserPwd": password,
             "btnLogon": "登录",
             '__EVENTTARGET': '',
             '__EVENTARGUMENT': '',
@@ -94,22 +83,53 @@ def get_syllabus(user, passwd, start_year=2015, end_year=2016, semester=AUTUMN, 
             '__EVENTVALIDATION': '/wEWBAKo25zdBALT8dy8BQLG8eCkDwKk07qFCRXt1F3RFYVdjuYasktKIhLnziqd'
         })
         # 需要转换为字节流
-        postdata = postdata.encode("utf-8")
+        post_data = post_data.encode("utf-8")
         cookie_jar = http.cookiejar.CookieJar()
         handler = urllib.request.HTTPCookieProcessor(cookie_jar)
         opener = urllib.request.build_opener(handler)
         # 此处的open方法同urllib2的urlopen方法，也可以传入request
-        resp = opener.open(HOSTADDR, postdata, timeout=timeout)
+        resp = opener.open(HOSTADDR, post_data, timeout=timeout)
         # 登录后的情况
         content = resp.read()
-        wrong_passwd = "认证服务器密码错误".encode(WEBSITE_ENCODING)
-        if content.__contains__(wrong_passwd):
+        wrong_password = "认证服务器密码错误".encode(WEBSITE_ENCODING)
+        if content.__contains__(wrong_password):
             return False, WRONG_PASSWORD
         # 该账号不存在或者不允许被使用学分制系统
         elif content.__contains__(b'not allowed to access this system'):
             return False, NOT_ALLOWED
         elif content.__contains__(b'alert'):    # 提示欠费那个错误
             return False, SYSTEM_BROKEN
+
+        return True, opener
+
+    except Exception as err:
+        print(type(err), str(err))
+        return False, TIME_OUT
+
+def get_syllabus(username, password, start_year=2015, end_year=2016, semester=AUTUMN, timeout=_GLOBAL_DEFAULT_TIMEOUT):
+    """
+    登录学分制网站
+    :param username:
+    :param password:
+    :param semester: 可选的值有 AUTUMN = 1 SPRING = 2 SUMMER = 3
+    :return:
+    """
+    try:
+        # 对参数进行检查
+        if semester not in (AUTUMN, SPRING, SUMMER):
+            return False, WRONG_SEMESTER
+
+        # if user.strip() == "" or passwd.strip() == "":
+        #     return False, EMPTY_DATA
+
+        if not isinstance(start_year, int) or not isinstance(end_year, int) or end_year <= start_year:
+            return False, WRONG_DATE
+
+        ret_val = login_credit(username, password, timeout)
+        if ret_val[0]:
+            opener = ret_val[1]
+        else:
+            return ret_val
 
         # 查看课表
         resp = opener.open('http://credit.stu.edu.cn/Elective/MyCurriculumSchedule.aspx', timeout=timeout)
@@ -161,6 +181,15 @@ def save_file(filename, data):
         print("saving " + filename)
         f.write(data)
 
+def get_grades(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
+    ret_val = login_credit(username, password, timeout)
+    if ret_val[0]:
+        opener = ret_val[1]
+    else:
+        return ret_val
+
+    resp = opener.open("http://credit.stu.edu.cn/Grade/MyGradeStudent.aspx", timeout=timeout)
+    return resp.read().decode(WEBSITE_ENCODING)
 
 
 def parse(content):
@@ -175,11 +204,11 @@ def parse(content):
     return lessons
 
 if __name__ == "__main__":
-    ret_val = get_syllabus("xxx", "xxx", start_year=2014, end_year=2015, semester=AUTUMN)
-    if ret_val[0]:
-        source = ret_val[1]
-        lessons = parse(source.decode(WEBSITE_ENCODING))     # 学校的那个网站用的是GBK编码，有点坑爹
-        print(get_course_info.Lesson.jsonfy_all(lessons))
-    else:
-        print(err_srt(ret_val[1]))
-
+    # ret_val = get_syllabus("14xfdeng", "Smallfly2nd", start_year=2014, end_year=2015, semester=AUTUMN)
+    # if ret_val[0]:
+    #     source = ret_val[1]
+    #     lessons = parse(source.decode("UTF-8"))     # 学校的那个网站用的是GBK编码，有点坑爹
+    #     print(get_course_info.Lesson.jsonfy_all(lessons))
+    # else:
+    #     print(err_srt(ret_val[1]))
+    print(get_grades("14xfdeng", "Smallfly2nd"))
