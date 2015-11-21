@@ -2,7 +2,7 @@
 
 from .login_credit import login_credit, WEBSITE_ENCODING, _GLOBAL_DEFAULT_TIMEOUT
 from . import error_string
-from .grade_parser import GradeParser
+from .grade_parser import GradeParser, Grade
 
 def get_grades_raw_data(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
     """
@@ -23,6 +23,32 @@ def get_grades_raw_data(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
     except Exception as err:
         print(__file__, type(err), str(err))
         return False, error_string.TIME_OUT
+
+def figure_gpa(grade_list):
+    """
+        计算GPA
+    :param raw_data:    成绩单页面的原始HTML内容
+    :param opener:  已经登陆学分制成功的 http_opener(带cookie)
+    :return: GPA
+    """
+    assert isinstance(grade_list, list)
+    if len(grade_list) == 0:
+        return -1
+    grade_sum = 0.0
+    credit_sum = 0.0
+    # length = len(grade_list)
+    for semester_grade in grade_list:
+        for grade in semester_grade:
+            assert isinstance(grade, dict)
+            # 加权
+            grade_point = float(grade['class_grade']) - 50
+            if grade_point < 60 - 50:
+                # 即不及格的时候，这科的绩点为0
+                grade_point = 0
+            grade_sum += grade_point / 10 * float(grade['class_credit'])
+            credit_sum += float(grade['class_credit'])
+    return grade_sum  /  credit_sum
+
 
 def parse_grades(raw_data):
     """
@@ -70,11 +96,14 @@ def parse_grades(raw_data):
             # print(parser.get_grades(grade_string, cur_year_str, cur_semester))
                                                                                         # 转化为字典，便于json化
             grade_list.append(parser.get_grades(grade_string, cur_year_str, cur_semester))
+
+
             semester_index = semester_data.find("学期", grade_end_index)
 
         year_index = raw_data.find("学年", year_index + 4)
 
-    return grade_list
+    gpa = figure_gpa(grade_list)
+    return grade_list, gpa
 
 
 

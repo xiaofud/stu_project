@@ -110,7 +110,10 @@ def query_grades():
         ret_val = grade_getter.get_grades_raw_data(username, password, 7)
         if not ret_val[0]:
             return jsonify(ERROR=error_string.err_srt(ret_val[1]))
-        return jsonify(GRADES=grade_getter.parse_grades(ret_val[1]))
+        grade_list, gpa = grade_getter.parse_grades(ret_val[1])
+        if len(grade_list) == 0:
+            return jsonify(ERROR="there is no information about grade")
+        return jsonify(GRADES=grade_list, GPA=gpa)
 
 @app.route("/qr")
 def get_qr_code():
