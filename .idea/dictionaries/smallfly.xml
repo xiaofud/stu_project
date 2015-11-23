@@ -2,6 +2,9 @@
   <dictionary name="smallfly">
     <words>
       <w>smallfly</w>
+      <w>sqlalchemy</w>
+      <w>sqlite</w>
+      <w>tablename</w>
       <w>xfdeng</w>
     </words>
   </dictionary>
