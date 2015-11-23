@@ -7,7 +7,7 @@ from oa import oa_main
 from class_interaction import database_test
 from credit import syllabus_getter
 from credit import error_string
-from credit import grade_getter
+from credit import grade_getter, exam_getter
 
 
 @app.errorhandler(404)
@@ -23,21 +23,43 @@ def index():
     urls['oa'] = url_for('get_updated_information', _external=True)
     urls['auth'] = url_for('stu_auth', _external=True)
     urls['grade'] = url_for('query_grades', _external=True)
+    urls['exam'] = url_for('query_exam', _external=True)
     return render_template('home.html', urls=urls)
+
+@app.route("/exam", methods=['GET', 'POST'])
+def query_exam():
+    # 查看考试
+    if request.method == "GET":
+        return render_template("exam_info.html")
+    user = request.form['username']
+    password = request.form['password']
+    years = request.form['years']
+    start_year, end_year = years.split("-")
+    start_year = int(start_year)
+    end_year = int(end_year)
+    semester = int(request.form['semester'])
+
+    ret_val = exam_getter.get_exam_list(user, password, start_year, end_year, semester, timeout=7)
+    if not ret_val[0]:
+        return jsonify(ERROR=error_string.err_srt(ret_val[1]))
+    else:
+        return jsonify(EXAMS=ret_val[1])
+
+
 
 # 课程表
 @app.route('/syllabus', methods=['GET', 'POST'])
 def query():
     if request.method == 'POST':
         user = request.form['username']
-        passwd = request.form['password']
+        password = request.form['password']
         years = request.form['years']
         start_year, end_year = years.split("-")
         start_year = int(start_year)
         end_year = int(end_year)
         semester = int(request.form['semester'])
         print(user, start_year, end_year, semester)
-        ret_val = syllabus_getter.get_syllabus(user, passwd, start_year=start_year, end_year=end_year, semester=semester, timeout=5)
+        ret_val = syllabus_getter.get_syllabus(user, password, start_year=start_year, end_year=end_year, semester=semester, timeout=7)
         if ret_val[0]:
             content = ret_val[1]
             lessons = syllabus_getter.parse(content.decode("UTF-8"))

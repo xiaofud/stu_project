@@ -12,6 +12,8 @@ TIME_OUT = 4
 SYSTEM_BROKEN = 5
 NOT_ALLOWED = 6
 
+NO_EXAMS = 7
+
 def err_srt(code):
     if code == EMPTY_DATA:
         return "username and password can't be empty"
@@ -27,3 +29,5 @@ def err_srt(code):
         return "credit system broken"
     elif code == NOT_ALLOWED:
         return "account not exist or not allowed"
+    elif code == NO_EXAMS:
+        return "no exams"

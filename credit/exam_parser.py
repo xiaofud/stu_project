@@ -4,6 +4,8 @@
 """
 
 from html.parser import HTMLParser
+# from .exam_getter import get_exam_raw_data
+# from .error_string import *
 
 """
 			<th scope="col">考试班号</th><th scope="col">课程名称</th><th scope="col">考试地点</th><th scope="col">考位号</th><th scope="col">主考</th><th scope="col">监考</th><th scope="col">时间</th><th scope="col">考生数</th><th scope="col">备注</th>
@@ -82,6 +84,23 @@ class ExamParser(HTMLParser):
         self.exam_stu_numbers = None
         self.exam_comment = None
 
+    def get_exam_list(self, exam_raw_data):
+        self.feed(exam_raw_data)
+        exam_list = self.exam_list
+        self.exam_class_number = None
+        self.exam_class = None
+        self.exam_location = None
+        self.exam_stu_position = None
+        self.exam_main_teacher = None
+        self.exam_invigilator = None
+        self.exam_time = None
+        self.exam_stu_numbers = None
+        self.exam_comment = None
+
+        self.point = 0
+
+        return exam_list
+
     def handle_data(self, data):
         assert isinstance(data, str)
         data = data.strip()
@@ -99,9 +118,10 @@ class ExamParser(HTMLParser):
             for name in ExamParser.properties:
                 arguments.append(getattr(self, name))
             exam = Exam(*arguments)
-            self.exam_list.append(exam)
+            self.exam_list.append(exam.to_dict())
 
             self.point = 0
+
 
 
 
