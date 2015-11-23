@@ -4,7 +4,7 @@ from flask import render_template, request, jsonify, url_for, redirect, make_res
 # from credit import login_credit
 from credit import class_info_parser, authentication
 from oa import oa_main
-from class_interaction import database_test
+from class_interaction import database_models
 from credit import syllabus_getter
 from credit import error_string
 from credit import grade_getter, exam_getter
@@ -69,11 +69,11 @@ def query():
                 # 课程的json数据
                 lessons_jsonfy = class_info_parser.Lesson.jsonfy_all(lessons)
                 # 这里插入用户
-                account = database_test.UserModel.query.filter_by(user_account=user).first()
+                account = database_models.UserModel.query.filter_by(user_account=user).first()
                 if account is None:
-                    account = database_test.UserModel(user)
+                    account = database_models.UserModel(user)
                     # 加入数据库
-                    ret_vals = database_test.insert_to_database(account)
+                    ret_vals = database_models.insert_to_database(account)
                     if ret_vals[0]: # 插入成功
                         # "token":"279456"
                         token_json = "\"token\":" + "\"{}\"".format(account.user_certificate)
@@ -81,10 +81,10 @@ def query():
                 # the user exists
                 else:
                     # 生成新的token
-                    new_token = database_test.generate_certificate(database_test.CERTIFICATE_LENGTH)
+                    new_token = database_models.generate_certificate(database_models.CERTIFICATE_LENGTH)
                     account.user_certificate = new_token
                     # 提交更改
-                    database_test.db.session.commit()
+                    database_models.db.session.commit()
                     token_json = "\"token\":" + "\"{}\"".format(account.user_certificate)
                     lessons_jsonfy = lessons_jsonfy[: -1] + "," + token_json + "}"
             # return render_template("show_classes.html", lessons=lessons)

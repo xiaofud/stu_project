@@ -7,7 +7,7 @@ from .interaction_api import *
     # database_test, jsonify, ret_vals_helper, reqparse
 
 def check_token(username, token):
-    user = database_test.UserModel.query.filter_by(user_account=username).first()
+    user = database_models.UserModel.query.filter_by(user_account=username).first()
     if user is not None:
         print(user.user_account, user.user_certificate)
         if user.user_certificate == token:
@@ -35,11 +35,11 @@ class HomeworkV1(Resource):
         class_arg_parser_helper(self.parser)
         args = self.parser.parse_args()
 
-        user = database_test.UserModel.query.filter_by(user_account=args['publisher']).first()
+        user = database_models.UserModel.query.filter_by(user_account=args['publisher']).first()
         if user is None:
             return jsonify(ERROR="no such user")
         class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
-        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+        lesson = database_models.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is None:
             return jsonify(ERROR="no such class")
         username = args['publisher']
@@ -53,10 +53,10 @@ class HomeworkV1(Resource):
         # from datetime import datetime
         # print(args['pub_time'])
         # print(datetime.now().timestamp())
-        homework = database_test.HomeworkModel(user, datetime.fromtimestamp(time.time()),
+        homework = database_models.HomeworkModel(user, datetime.fromtimestamp(time.time()),
                                                args['hand_in_time'], args['content'], lesson)
         # return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
-        ret_vals = ret_vals_helper(database_test.insert_to_database, homework, "", False)
+        ret_vals = ret_vals_helper(database_models.insert_to_database, homework, "", False)
         if ret_vals[0]:
             # 返回 homework 在表中的主键
             return jsonify(status=homework.id)
@@ -82,11 +82,11 @@ class DiscussionV1(Resource):
         # 用于判断是对应哪一节课程
         class_arg_parser_helper(self.parser)
         args = self.parser.parse_args()
-        user = database_test.UserModel.query.filter_by(user_account=args['publisher']).first()
+        user = database_models.UserModel.query.filter_by(user_account=args['publisher']).first()
         if user is None:
             return jsonify(ERROR="no such user")
         class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
-        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+        lesson = database_models.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is None:
             return jsonify(ERROR="no such class")
         username = args['publisher']
@@ -101,9 +101,9 @@ class DiscussionV1(Resource):
 
 
 
-        discussion = database_test.DiscussModel(user, args["content"], datetime.fromtimestamp(time.time()), lesson)
+        discussion = database_models.DiscussModel(user, args["content"], datetime.fromtimestamp(time.time()), lesson)
         # return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
-        ret_vals = ret_vals_helper(database_test.insert_to_database, discussion, "", False)
+        ret_vals = ret_vals_helper(database_models.insert_to_database, discussion, "", False)
         if ret_vals[0]:
             # 返回 discussion 在表中的主键
             return jsonify(status=discussion.id)
@@ -134,21 +134,21 @@ class DeleteResource(Resource):
         # 先获取这个资源
         # 删除作业
         if type_ == DeleteResource.TYPE_HOMEWORK:
-            model = database_test.HomeworkModel
+            model = database_models.HomeworkModel
         elif type_ == DeleteResource.TYPE_DISCUSSION:
-            model = database_test.DiscussModel
+            model = database_models.DiscussModel
 
-        resource = database_test.query_by_id(model, args['resource_id'])
+        resource = database_models.query_by_id(model, args['resource_id'])
         if resource is None:
             return jsonify(ERROR="no such resource")
 
         # 检查用户
         request_user = args['user']
-        user = database_test.query_user_by_name(request_user)
+        user = database_models.query_user_by_name(request_user)
         if user is None:
             return jsonify(ERROR="no such user")
         # 普通用户没有权限删除其他人的信息
-        if user != resource.user and user.user_account not in database_test.ADMINS:
+        if user != resource.user and user.user_account not in database_models.ADMINS:
             return jsonify(ERROR="not authorized: no such user or user not match")
         # token不匹配
         if args['token'] != user.user_certificate:
@@ -156,7 +156,7 @@ class DeleteResource(Resource):
             return jsonify(ERROR="not authorized: wrong token")
 
         # 尝试删除
-        ret_vals = database_test.delete_from_database(resource)
+        ret_vals = database_models.delete_from_database(resource)
         if ret_vals[0]:
             return jsonify(status="deleted")
         else:

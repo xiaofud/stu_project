@@ -1,14 +1,14 @@
 # coding=utf-8
 # 用于用户交互的api
 
-from . import database_test
+from . import database_models
 from app import app
 from flask import jsonify
 from flask_restful import Api, Resource, reqparse, abort
 from . import load_version  # 读取版本信息
 import hashlib
 
-database_test.db.create_all()
+database_models.db.create_all()
 
 api = Api(app)
 
@@ -43,7 +43,7 @@ def class_arg_parser_helper(parser, location=('json', 'values',)):
     parser.add_argument("semester", required=True, type=int, location=location)
 
 def query_class_by_class_id(class_id):
-    lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+    lesson = database_models.ClassModel.query.filter_by(class_id=class_id).first()
     return lesson
 
 class Cource(Resource):
@@ -61,7 +61,7 @@ class Cource(Resource):
         class_arg_parser_helper(self.get_parser, location= ("args", ))
         args = self.get_parser.parse_args()
         class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
-        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+        lesson = database_models.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is not None:
             return jsonify(lesson=lesson.to_dict(), discussion=list(map(lambda x: x.to_dict(), lesson.class_discussion)),
                            homework=list(map(lambda x: x.to_dict(), lesson.class_homework)))
@@ -82,9 +82,9 @@ class Cource(Resource):
         self.post_parser.add_argument("end_year", required=True, type=int)
         self.post_parser.add_argument("semester", required=True, type=int)
         args = self.post_parser.parse_args()
-        lesson = database_test.ClassModel(args["number"], args["name"], args['credit'], args['teacher'], args["room"],
+        lesson = database_models.ClassModel(args["number"], args["name"], args['credit'], args['teacher'], args["room"],
         args["span"], args["time"], args["start_year"], args["end_year"], args["semester"])
-        return ret_vals_helper(database_test.insert_to_database, lesson, "succeed to add the class")
+        return ret_vals_helper(database_models.insert_to_database, lesson, "succeed to add the class")
 
     def delete(self):
         # 删除需要权限
@@ -98,9 +98,9 @@ class Cource(Resource):
         class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
 
 
-        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+        lesson = database_models.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is not None:
-            return ret_vals_helper(database_test.delete_from_database, lesson, "succeed to remove the class")
+            return ret_vals_helper(database_models.delete_from_database, lesson, "succeed to remove the class")
         else:
             return jsonify(ERROR="No such class")
 
@@ -109,21 +109,21 @@ api.add_resource(Cource, "/api/course", "/api/course/")
 # 返回指定id课程的count条作业信息
 def get_homework(id_, count):
     if count > 0:
-        all_homework = database_test.HomeworkModel.query.filter(database_test.HomeworkModel.hw_class == id_).\
-                    order_by(database_test.HomeworkModel.id.desc()).limit(count).all()
+        all_homework = database_models.HomeworkModel.query.filter(database_models.HomeworkModel.hw_class == id_).\
+                    order_by(database_models.HomeworkModel.id.desc()).limit(count).all()
     else:   # 返回全部
-        all_homework = database_test.HomeworkModel.query.filter(database_test.HomeworkModel.hw_class == id_).\
-                    order_by(database_test.HomeworkModel.id.desc()).all()
+        all_homework = database_models.HomeworkModel.query.filter(database_models.HomeworkModel.hw_class == id_).\
+                    order_by(database_models.HomeworkModel.id.desc()).all()
     return all_homework
 
 # 返回指定id课程的count条讨论信息
 def get_discussion(id_, count):
     if count > 0:
-        all_discussion = database_test.DiscussModel.query.filter(database_test.DiscussModel.discuss_class == id_).\
-            order_by(database_test.DiscussModel.id.desc()).limit(count).all()
+        all_discussion = database_models.DiscussModel.query.filter(database_models.DiscussModel.discuss_class == id_).\
+            order_by(database_models.DiscussModel.id.desc()).limit(count).all()
     else:
-        all_discussion = database_test.DiscussModel.query.filter(database_test.DiscussModel.discuss_class == id_).\
-            order_by(database_test.DiscussModel.id.desc()).all()
+        all_discussion = database_models.DiscussModel.query.filter(database_models.DiscussModel.discuss_class == id_).\
+            order_by(database_models.DiscussModel.id.desc()).all()
     return all_discussion
 
 class CourseInformation(Resource):
@@ -179,7 +179,7 @@ class User(Resource):
     def get(self, name=""):
         if name == "":
             abort(404)
-        user = database_test.UserModel.query.filter_by(user_account=name).first()
+        user = database_models.UserModel.query.filter_by(user_account=name).first()
         if user is not None:
             return jsonify(user=repr(user))
         else:
@@ -188,8 +188,8 @@ class User(Resource):
     def post(self):
         self.parser.add_argument("username", required=True)
         args = self.parser.parse_args()
-        user = database_test.UserModel(args['username'])
-        return ret_vals_helper(database_test.insert_to_database, user, user.user_certificate)
+        user = database_models.UserModel(args['username'])
+        return ret_vals_helper(database_models.insert_to_database, user, user.user_certificate)
 
     # def delete(self, name=""):
     #     if name == "":
@@ -221,11 +221,11 @@ class Homework(Resource):
         class_arg_parser_helper(self.parser)
         args = self.parser.parse_args()
 
-        user = database_test.UserModel.query.filter_by(user_account=args['publisher']).first()
+        user = database_models.UserModel.query.filter_by(user_account=args['publisher']).first()
         if user is None:
             return jsonify(ERROR="no such user")
         class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
-        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+        lesson = database_models.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is None:
             return jsonify(ERROR="no such class")
         username = args['publisher']
@@ -236,10 +236,10 @@ class Homework(Resource):
         from datetime import datetime
         # print(args['pub_time'])
         # print(datetime.now().timestamp())
-        homework = database_test.HomeworkModel(user, datetime.fromtimestamp(float(args['pub_time'])),
+        homework = database_models.HomeworkModel(user, datetime.fromtimestamp(float(args['pub_time'])),
                                                args['hand_in_time'], args['content'], lesson)
         # return ret_vals_helper(database_test.insert_to_database, homework, "succeed to add the homework")
-        ret_vals = ret_vals_helper(database_test.insert_to_database, homework, "", False)
+        ret_vals = ret_vals_helper(database_models.insert_to_database, homework, "", False)
         if ret_vals[0]:
             # 返回 homework 在表中的主键
             return jsonify(status=homework.id)
@@ -264,11 +264,11 @@ class Discussion(Resource):
         # 用于判断是对应哪一节课程
         class_arg_parser_helper(self.parser)
         args = self.parser.parse_args()
-        user = database_test.UserModel.query.filter_by(user_account=args['publisher']).first()
+        user = database_models.UserModel.query.filter_by(user_account=args['publisher']).first()
         if user is None:
             return jsonify(ERROR="no such user")
         class_id = str(args['start_year']) + "_" + str(args["end_year"]) + "_" + str(args['semester']) + "_" + str(args['number'])
-        lesson = database_test.ClassModel.query.filter_by(class_id=class_id).first()
+        lesson = database_models.ClassModel.query.filter_by(class_id=class_id).first()
         if lesson is None:
             return jsonify(ERROR="no such class")
         username = args['publisher']
@@ -277,9 +277,9 @@ class Discussion(Resource):
         if not check_hash(hash_code, username+timestamp):
             return jsonify(ERROR="wrong code")
         from datetime import datetime
-        discussion = database_test.DiscussModel(user, args["content"], datetime.fromtimestamp(float(args['pub_time'])), lesson)
+        discussion = database_models.DiscussModel(user, args["content"], datetime.fromtimestamp(float(args['pub_time'])), lesson)
         # return ret_vals_helper(database_test.insert_to_database, discussion, "succeed to add the discussion")
-        ret_vals = ret_vals_helper(database_test.insert_to_database, discussion, "", False)
+        ret_vals = ret_vals_helper(database_models.insert_to_database, discussion, "", False)
         if ret_vals[0]:
             # 返回 discussion 在表中的主键
             return jsonify(status=discussion.id)

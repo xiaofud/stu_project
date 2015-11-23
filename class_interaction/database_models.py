@@ -76,11 +76,20 @@ class UserModel(db.Model):
     # 用户有效性 取值 0 1, 用于封禁用户
     user_validity = db.Column(db.Integer)
 
+    # 用户的昵称
+    user_nickname = db.Column(db.String(20), default="")
+
+    # 用户生日
+    user_birthday = db.Column(db.DateTime)
+
+
     # 用户评论
     user_discussion = db.relationship("DiscussModel", backref="user")
 
     # 用户发布的作业
     user_homework = db.relationship("HomeworkModel", backref="user")
+
+
 
     def __init__(self, account):
         self.user_account = account
