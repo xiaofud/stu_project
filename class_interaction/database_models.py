@@ -77,7 +77,7 @@ class UserModel(db.Model):
     user_validity = db.Column(db.Integer)
 
     # 用户的昵称
-    user_nickname = db.Column(db.String(20), default="")
+    user_nickname = db.Column(db.String(20))    # 如果没有提供的话 那就是 null
 
     # 用户生日
     user_birthday = db.Column(db.DateTime)
@@ -159,7 +159,7 @@ class ClassModel(db.Model):
             "class_credit": self.class_credit,
             "class_teacher": self.class_teacher,
             "class_room": self.class_room,
-            "clss_span": self.class_span,
+            "class_span": self.class_span,
             "class_time": self.class_time
         }
         return my_dict
@@ -212,6 +212,7 @@ class HomeworkModel(db.Model):
         my_dict = {
             "id": self.id ,     # 这条数据在数据库中的主键
             "publisher": self.user.user_account,
+            "publisher_nickname": self.user.user_nickname,
             "pub_time": int(self.hw_publish_time.timestamp()),
             "hand_in_time": self.hw_hand_in_time,
             "content": self.hw_content
@@ -261,6 +262,7 @@ class DiscussModel(db.Model):
         my_dict = {
             "id": self.id,
             "publisher": self.user.user_account,
+            "publisher_nickname": self.user.user_nickname,
             "content": self.discuss_content,
             "time": int(self.discuss_time.timestamp()),
         }
@@ -307,6 +309,13 @@ def query_by_id(model, id_):
     """
     return model.query.filter_by(id=id_).first()
 
+def commit():
+    try:
+        db.session.commit()
+        return True, None
+    except Exception as e:
+        print(type(e), str(e))
+        return False, str(e)
 
 def insert_to_database(thing):
     try:

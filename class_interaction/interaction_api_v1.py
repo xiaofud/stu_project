@@ -164,6 +164,52 @@ class DeleteResource(Resource):
 
 api.add_resource(DeleteResource, "/api/v1.0/delete/<int:type_>")
 
+class ModifyUser(Resource):
+    """
+    修改用户信息
+    """
+    parser = reqparse.RequestParser()
+
+    def put(self):
+        """
+        更新用户信息
+        """
+        # 用户名 14xfdeng
+        self.parser.add_argument("username", required=True)
+        self.parser.add_argument("token", required=True)
+        # 昵称
+        self.parser.add_argument("nickname")
+        self.parser.add_argument("birthday", type=float)
+
+        args = self.parser.parse_args()
+        username = args['username']
+        token = args['token']
+
+        nickname = args.get("nickname", None)
+        birthday = args.get("birthday", None)
+
+
+        # 在数据库中查找用户
+        user = database_models.query_user_by_name(username)
+        if user is None:
+            return jsonify(ERROR="no such user")
+        if token != user.user_certificate:
+            return jsonify(ERROR="wrong token")
+
+        if nickname is not None:
+            user.user_nickname = nickname
+        if birthday is not None:
+            user.user_birthday = datetime.fromtimestamp(float(birthday))
+
+        # 提交修改到数据库中
+        ret_val = database_models.commit()
+        if ret_val[0]:
+            return jsonify(status="okay")
+        else:
+            return jsonify(ERROR=ret_val[1])
+
+api.add_resource(ModifyUser, "/api/v1.0/modify_user")
+
 class Broadcast(Resource):
     """
         用于在所有课程上广播(公共聊天区域)

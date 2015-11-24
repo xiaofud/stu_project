@@ -2,7 +2,6 @@
 # 用于用户交互的api
 
 from . import database_models
-from app import app
 from flask import jsonify
 from flask_restful import Api, Resource, reqparse, abort
 from . import load_version  # 读取版本信息
@@ -10,7 +9,8 @@ import hashlib
 
 database_models.db.create_all()
 
-api = Api(app)
+# 由 server 那里来初始化
+api = Api()
 
 AUTHORIZE_CODE = "smallfly" # 测试用途
 
@@ -179,9 +179,18 @@ class User(Resource):
     def get(self, name=""):
         if name == "":
             abort(404)
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument("token", required=True, location="args")
+        args = self.parser.parse_args()
+        token = args['token']
         user = database_models.UserModel.query.filter_by(user_account=name).first()
         if user is not None:
-            return jsonify(user=repr(user))
+            if user.user_certificate == token:
+
+                return jsonify(user=user.user_account, nickname=user.user_nickname)
+            else:
+                print(user.user_certificate)
+                return jsonify(ERROR="wrong token")
         else:
             return jsonify(ERROR="no such user")
 
