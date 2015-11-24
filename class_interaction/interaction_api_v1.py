@@ -170,6 +170,10 @@ class ModifyUser(Resource):
     """
     parser = reqparse.RequestParser()
 
+    # post 和 put 都可以
+    def post(self):
+        return self.put()
+
     def put(self):
         """
         更新用户信息
