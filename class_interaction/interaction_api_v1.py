@@ -59,7 +59,7 @@ class HomeworkV1(Resource):
         ret_vals = ret_vals_helper(database_models.insert_to_database, homework, "", False)
         if ret_vals[0]:
             # 返回 homework 在表中的主键
-            return jsonify(status=homework.id)
+            return jsonify(status=homework.id, nickname=user.user_nickname)
         else:
             return jsonify(ERROR=ret_vals[1])
 
@@ -106,7 +106,7 @@ class DiscussionV1(Resource):
         ret_vals = ret_vals_helper(database_models.insert_to_database, discussion, "", False)
         if ret_vals[0]:
             # 返回 discussion 在表中的主键
-            return jsonify(status=discussion.id)
+            return jsonify(status=discussion.id, nickname=user.user_nickname)
         else:
             return jsonify(ERROR=ret_vals[1])
 
