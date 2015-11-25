@@ -144,7 +144,7 @@ class DeleteResource(Resource):
 
         # 检查用户
         request_user = args['user']
-        user = database_models.query_user_by_name(request_user)
+        user = database_models.query_user_by_school_account(request_user)
         if user is None:
             return jsonify(ERROR="no such user")
         # 普通用户没有权限删除其他人的信息
@@ -194,13 +194,34 @@ class ModifyUser(Resource):
 
 
         # 在数据库中查找用户
-        user = database_models.query_user_by_name(username)
+        user = database_models.query_user_by_school_account(username)
         if user is None:
             return jsonify(ERROR="no such user")
         if token != user.user_certificate:
             return jsonify(ERROR="wrong token")
 
+
         if nickname is not None:
+
+            if len(nickname) > 20:
+                return jsonify(ERROR="nickname too long")
+
+            # 检查是否有人同名
+            user_who_has_the_same_nickname = database_models.query_user_by_nickname(nickname)
+            # 不允许同名, 但是是自己的话就无所谓
+            if user_who_has_the_same_nickname is not None and \
+                user_who_has_the_same_nickname != user:
+                return jsonify(ERROR="the nickname has been used")
+            # 不允许其他用户使用数据库里面存在的帐号名, 比如说 14xfdeng 和 14jhwang 都在数据库内
+            # 那么 对于 nickname 14xfdeng, 只允许 14xfdeng 这个账号拥有
+            # 判断 这个 nickname 是不是数据库中某个账号名
+            nickname_is_the_account_user = database_models.query_user_by_school_account(nickname)
+            # 如果数据库存在这个账号
+            if nickname_is_the_account_user is not None and \
+                user.user_account != nickname_is_the_account_user.user_account:
+                    return jsonify(ERROR="not authorized to use this name")
+
+
             user.user_nickname = nickname
         if birthday is not None:
             user.user_birthday = datetime.fromtimestamp(float(birthday))

@@ -297,8 +297,11 @@ def query_user_by_id(id_):
     user = query_by_id(UserModel, id_)
     return user
 
-def query_user_by_name(name):
+def query_user_by_school_account(name):
     return UserModel.query.filter_by(user_account=name).first()
+
+def query_user_by_nickname(nick_name):
+    return UserModel.query.filter_by(user_nickname=nick_name).first()
 
 def query_by_id(model, id_):
     """

@@ -68,12 +68,19 @@ def query():
             else:
                 # 课程的json数据
                 lessons_json_data = class_info_parser.Lesson.jsonfy_all(lessons)
-                # 这里插入用户
+                # 这里查找用户
                 account = database_models.UserModel.query.filter_by(user_account=user).first()
                 if account is None:
                     account = database_models.UserModel(user)
                     # 默认昵称为帐号名
                     account.user_nickname = user
+                    # 查看是否之前有人已经修改名字为这个账号名称
+                    fake_user = database_models.query_user_by_nickname(user)
+                    if fake_user is None:
+                        # 将用户名改回去
+                        fake_user.user_nickname = fake_user.user_account
+                        # 提交修改
+                        database_models.commit()
                     # 加入数据库
                     ret_vals = database_models.insert_to_database(account)
                     if ret_vals[0]: # 插入成功
