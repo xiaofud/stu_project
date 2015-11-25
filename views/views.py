@@ -67,17 +67,21 @@ def query():
                 return jsonify(ERROR="No classes")
             else:
                 # 课程的json数据
-                lessons_jsonfy = class_info_parser.Lesson.jsonfy_all(lessons)
+                lessons_json_data = class_info_parser.Lesson.jsonfy_all(lessons)
                 # 这里插入用户
                 account = database_models.UserModel.query.filter_by(user_account=user).first()
                 if account is None:
                     account = database_models.UserModel(user)
+                    # 默认昵称为帐号名
+                    account.user_nickname = user
                     # 加入数据库
                     ret_vals = database_models.insert_to_database(account)
                     if ret_vals[0]: # 插入成功
                         # "token":"279456"
                         token_json = "\"token\":" + "\"{}\"".format(account.user_certificate)
-                        lessons_jsonfy = lessons_jsonfy[: -1] + "," + token_json + "}"
+                        nickname_json = "\"nickname\":" + "\"{}\"".format(account.user_nickname)
+                        lessons_json_data = lessons_json_data[: -1] + "," + token_json + "}"
+                        lessons_json_data = lessons_json_data[: -1] + "," + nickname_json + "}"
                 # the user exists
                 else:
                     # 生成新的token
@@ -86,12 +90,16 @@ def query():
                     # 提交更改
                     database_models.db.session.commit()
                     token_json = "\"token\":" + "\"{}\"".format(account.user_certificate)
-                    lessons_jsonfy = lessons_jsonfy[: -1] + "," + token_json + "}"
+                    lessons_json_data = lessons_json_data[: -1] + "," + token_json + "}"
+                    # 添加nickname的返回
+                    nickname_json = "\"nickname\":" + "\"{}\"".format(account.user_nickname)
+                    lessons_json_data = lessons_json_data[: -1] + "," + nickname_json + "}"
+                    # print(account.user_nickname)
             # return render_template("show_classes.html", lessons=lessons)
                 if syllabus_getter.CACHE_SYLLABUS:
                     filename = user + "_" + "{}_{}".format(start_year, end_year) + "_" + str(semester)
-                    syllabus_getter.save_file(filename, lessons_jsonfy)
-                return lessons_jsonfy
+                    syllabus_getter.save_file(filename, lessons_json_data)
+                return lessons_json_data
         else:
             return jsonify(ERROR=error_string.err_srt(ret_val[1]))
     return render_template('login.html')
