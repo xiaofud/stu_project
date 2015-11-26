@@ -202,9 +202,12 @@ class ModifyUser(Resource):
 
 
         if nickname is not None:
-
+            assert isinstance(nickname, str)
             if len(nickname) > 20:
                 return jsonify(ERROR="nickname too long")
+
+            if len(nickname.strip() == 0):
+                return jsonify(ERROR="empty name")
 
             # 检查是否有人同名
             user_who_has_the_same_nickname = database_models.query_user_by_nickname(nickname)
