@@ -206,8 +206,8 @@ class ModifyUser(Resource):
             if len(nickname) > 20:
                 return jsonify(ERROR="nickname too long")
 
-            if len(nickname.strip()) < 4:
-                return jsonify(ERROR="nickname too short, at least 4")
+            if len(nickname.strip()) < 2:
+                return jsonify(ERROR="nickname too short, at least 2")
 
             if len(nickname.strip()) == 0:
                 return jsonify(ERROR="empty name")
