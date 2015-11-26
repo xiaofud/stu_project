@@ -115,14 +115,15 @@ def query():
     return render_template('login.html')
 
 # 办公自动化
+# 不允许使用GET方法
 @app.route('/oa', methods=["POST"])
 def get_updated_information():
 
     # modified by junhaow
     if request.method == "POST":
 
-        username = request.form['username']
-        token = request.form['token']
+        username = request.form.get("username", "")
+        token = request.form.get("token", "")
 
         if username.strip() == "" or token.strip() == "":
             return jsonify(ERROR="invalid input")
@@ -137,8 +138,8 @@ def get_updated_information():
             return jsonify(DOCUMENTS=information)
     else:
         # 返回最新的 oa
-        # return jsonify(DOCUMENTS=oa_main.get_most_updated(1))
-        return redirect(url_for(index))
+        return jsonify(DOCUMENTS=oa_main.get_most_updated(1))
+        # return redirect(url_for(index))
 # token
 def check_token(username, token):
     user = database_models.UserModel.query.filter_by(user_account=username).first()

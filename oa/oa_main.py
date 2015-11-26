@@ -7,14 +7,14 @@ from .oa_parser import parse
 UPDATED_ADDR = 'http://notes.stu.edu.cn/login/Login.jsp?logintype=1'    # 显示最新消息的页面
 DOCUMENT_URL = 'http://notes.stu.edu.cn/csweb/list.jsp'
 WEBSITE_ENCODING = 'GBK'
-NOTIFICATION_COUNT = 10
+NOTIFICATION_COUNT = 20
 
 def get_most_updated(pageindex):
     # the result of urlencode is already str
     post_data = urllib.parse.urlencode({
-        "pageindex": pageindex
-        # not needed
-        # "pagesize": NOTIFICATION_COUNT,
+        "pageindex": pageindex,
+        # control the numbers
+        "pagesize": NOTIFICATION_COUNT
     })
 
     # before post the data, the data need to be the form of bytes
