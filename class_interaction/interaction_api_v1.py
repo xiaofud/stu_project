@@ -206,6 +206,9 @@ class ModifyUser(Resource):
             if len(nickname) > 20:
                 return jsonify(ERROR="nickname too long")
 
+            if len(nickname.strip()) < 4:
+                return jsonify(ERROR="nickname too short, at least 4")
+
             if len(nickname.strip()) == 0:
                 return jsonify(ERROR="empty name")
 
@@ -224,8 +227,8 @@ class ModifyUser(Resource):
                 user.user_account != nickname_is_the_account_user.user_account:
                     return jsonify(ERROR="not authorized to use this name")
 
-
-            user.user_nickname = nickname
+            # 保存去掉首尾空格的名称
+            user.user_nickname = nickname.strip()
         if birthday is not None:
             user.user_birthday = datetime.fromtimestamp(float(birthday))
 
