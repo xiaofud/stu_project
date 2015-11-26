@@ -115,26 +115,29 @@ def query():
     return render_template('login.html')
 
 # 办公自动化
-@app.route('/oa', methods=["POST"])
+@app.route('/oa', methods=["GET", "POST"])
 def get_updated_information():
 
     # modified by junhaow
-    if request.mothod == "POST":
+    if request.method == "POST":
 
         username = request.form['username']
         token = request.form['token']
 
         if username.strip() == "" or token.strip() == "":
-            return jsonify(Error="invalid input")
-        elif check_token(username, token):
+            return jsonify(ERROR="invalid input")
+        elif not check_token(username, token):
             return jsonify(ERROR="wrong token")
         else:
             pageindex = request.form['pageindex']
-            pagesize = request.form['pagesize']
+            # 这个参数不需要
+            # pagesize = request.form['pagesize']
 
             information = oa_main.get_most_updated(pageindex)
             return jsonify(DOCUMENTS=information)
-
+    else:
+        # 返回最新的 oa
+        return oa_main.get_most_updated(1)
 
 # token
 def check_token(username, token):

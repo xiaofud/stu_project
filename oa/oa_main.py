@@ -5,22 +5,25 @@ from .oa_parser import parse
 
 # CONSTANTS
 UPDATED_ADDR = 'http://notes.stu.edu.cn/login/Login.jsp?logintype=1'    # 显示最新消息的页面
-DOCUMENT_URL = 'http://office.stu.edu.cn/csweb/list.jsp'
+DOCUMENT_URL = 'http://notes.stu.edu.cn/csweb/list.jsp'
 WEBSITE_ENCODING = 'GBK'
-NOTIFICATION_COUNT = 20
+NOTIFICATION_COUNT = 10
 
 def get_most_updated(pageindex):
-
-    postDict = urllib.parse.urlencode({
-        "pageindex": pageindex,
-        "pagesize": NOTIFICATION_COUNT,
+    # the result of urlencode is already str
+    post_data = urllib.parse.urlencode({
+        "pageindex": pageindex
+        # not needed
+        # "pagesize": NOTIFICATION_COUNT,
     })
 
-    postData = urllib.urlencode(postDict)
+    # before post the data, the data need to be the form of bytes
+    post_data = post_data.encode(WEBSITE_ENCODING)
+    # postData = urllib.urlencode(postDict)
 
-    req = urllib2.Request(DOCUMENT_URL, postData)
+    req = urllib.request.urlopen(DOCUMENT_URL, post_data)
 
-    content = resp.read().decode(WEBSITE_ENCODING)
+    content = req.read().decode(WEBSITE_ENCODING)
 
     # maybe no count limitation
     return parse(content, count=NOTIFICATION_COUNT)
