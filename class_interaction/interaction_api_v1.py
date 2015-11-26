@@ -206,7 +206,7 @@ class ModifyUser(Resource):
             if len(nickname) > 20:
                 return jsonify(ERROR="nickname too long")
 
-            if len(nickname.strip() == 0):
+            if len(nickname.strip()) == 0:
                 return jsonify(ERROR="empty name")
 
             # 检查是否有人同名
