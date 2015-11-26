@@ -115,11 +115,36 @@ def query():
     return render_template('login.html')
 
 # 办公自动化
-@app.route('/oa')
+@app.route('/oa', methods=["POST"])
 def get_updated_information():
-    information = oa_main.get_most_updated()    # list of dict
-    return jsonify(notifications=information)
-    # return information
+
+    # modified by junhaow
+    if request.mothod == "POST":
+
+        username = request.form['username']
+        token = request.form['token']
+
+        if username.strip() == "" or token.strip() == "":
+            return jsonify(Error="invalid input")
+        elif check_token(username, token):
+            return jsonify(ERROR="wrong token")
+        else:
+            pageindex = request.form['pageindex']
+            pagesize = request.form['pagesize']
+
+            information = oa_main.get_most_updated(pageindex)
+            return jsonify(DOCUMENTS=information)
+
+
+# token
+def check_token(username, token):
+    user = database_models.UserModel.query.filter_by(user_account=username).first()
+    if user is not None:
+        print(user.user_account, user.user_certificate)
+        if user.user_certificate == token:
+            return True
+    return False
+
 
 # 验证用户
 @app.route("/auth", methods=["GET", "POST"])
