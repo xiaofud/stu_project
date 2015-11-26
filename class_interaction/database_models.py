@@ -259,10 +259,16 @@ class DiscussModel(db.Model):
         self.lesson = lesson    # backref
 
     def to_dict(self):
+        if self.user is None:
+            user_account = ""
+            user_nickname = ""
+        else:
+            user_account = self.user.user_account
+            user_nickname = self.user.user_nickname
         my_dict = {
             "id": self.id,
-            "publisher": self.user.user_account,
-            "publisher_nickname": self.user.user_nickname,
+            "publisher": user_account,
+            "publisher_nickname": user_nickname,
             "content": self.discuss_content,
             "time": int(self.discuss_time.timestamp()),
         }
