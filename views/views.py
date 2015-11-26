@@ -70,14 +70,17 @@ def query():
                 lessons_json_data = class_info_parser.Lesson.jsonfy_all(lessons)
                 # 这里查找用户
                 account = database_models.UserModel.query.filter_by(user_account=user).first()
+                # 进行这次课表查询的用户还不在数据库中
                 if account is None:
+                    print(user + " 是新用户")
                     account = database_models.UserModel(user)
                     # 默认昵称为帐号名
                     account.user_nickname = user
                     # 查看是否之前有人已经修改名字为这个账号名称
                     fake_user = database_models.query_user_by_nickname(user)
-                    if fake_user is None:
+                    if fake_user is not None:
                         # 将用户名改回去
+                        print("fake user is " + str(fake_user))
                         fake_user.user_nickname = fake_user.user_account
                         # 提交修改
                         database_models.commit()
