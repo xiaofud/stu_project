@@ -4,7 +4,7 @@
 重置数据库的一些状态
 """
 
-import database_models
+from class_interaction import database_models
 # from . import database_models
 
 def reset_nickname():
