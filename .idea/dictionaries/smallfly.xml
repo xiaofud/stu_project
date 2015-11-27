@@ -2,10 +2,13 @@
   <dictionary name="smallfly">
     <words>
       <w>jhwang</w>
+      <w>junhaow</w>
+      <w>pageindex</w>
       <w>smallfly</w>
       <w>sqlalchemy</w>
       <w>sqlite</w>
       <w>tablename</w>
+      <w>urlencode</w>
       <w>vals</w>
       <w>xfdeng</w>
     </words>

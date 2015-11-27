@@ -1,7 +1,6 @@
 # coding=utf-8
 from app import app
-from flask import render_template, request, jsonify, url_for, redirect, make_response, send_from_directory
-# from credit import login_credit
+from flask import render_template, request, jsonify, url_for, redirect
 from credit import class_info_parser, authentication
 from oa import oa_main
 from class_interaction import database_models
@@ -20,7 +19,7 @@ def page_not_found(err):
 def index():
     urls = dict()
     urls['syllabus'] = url_for('query', _external=True)
-    urls['oa'] = url_for('get_updated_information', _external=True)
+    # urls['oa'] = url_for('get_updated_information', _external=True)
     urls['auth'] = url_for('stu_auth', _external=True)
     urls['grade'] = url_for('query_grades', _external=True)
     urls['exam'] = url_for('query_exam', _external=True)
@@ -117,7 +116,7 @@ def query():
 # 办公自动化
 # 不允许使用GET方法
 @app.route('/oa', methods=["POST"])
-def get_updated_information():
+def get_updated_information_list():
 
     # modified by junhaow
     if request.method == "POST":
@@ -134,11 +133,11 @@ def get_updated_information():
             # 这个参数不需要
             # pagesize = request.form['pagesize']
 
-            information = oa_main.get_most_updated(pageindex)
+            information = oa_main.get_most_updated_oa_list(pageindex)
             return jsonify(DOCUMENTS=information)
     else:
         # 返回最新的 oa
-        return jsonify(DOCUMENTS=oa_main.get_most_updated(1))
+        return jsonify(DOCUMENTS=oa_main.get_most_updated_oa_list(1))
         # return redirect(url_for(index))
 # token
 def check_token(username, token):
@@ -157,7 +156,7 @@ def stu_auth():
         username = request.form['username']
         password = request.form['password']
         if username.strip() == "" or password.strip() == "":
-            return jsonify(Error="invalid input")
+            return jsonify(ERROR="invalid input")
         else:
             ret_val = authentication.authenticate_by_credit(username, password)
             if ret_val == authentication.CORRECT:

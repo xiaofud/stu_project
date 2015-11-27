@@ -3,6 +3,7 @@
 import time
 from datetime import datetime
 from .interaction_api import *
+from oa import oa_main
     # api, Resource, class_arg_parser_helper,\
     # database_test, jsonify, ret_vals_helper, reqparse
 
@@ -240,6 +241,30 @@ class ModifyUser(Resource):
             return jsonify(ERROR=ret_val[1])
 
 api.add_resource(ModifyUser, "/api/v1.0/modify_user")
+
+
+class OAResource(Resource):
+
+    parser = reqparse.RequestParser()
+
+    def post(self):
+        self.parser.add_argument("url", required=True)
+
+        args = self.parser.parse_args()
+        url = args['url']
+        # return oa_main.send_out_oa_page(url)
+        ret_val = oa_main.send_out_oa_page(url)
+        if ret_val[0]:
+            return ret_val[1]
+        else:
+            return jsonify(ERROR="time out")
+
+    def get(self):
+        test_url = "http://notes.stu.edu.cn/page/maint/template/news/newstemplateprotal.jsp?templatetype=1&templateid=3&docid=4974"
+        return oa_main.send_out_oa_page(test_url)
+
+api.add_resource(OAResource, "/api/v1.0/oa")
+
 
 class Broadcast(Resource):
     """
