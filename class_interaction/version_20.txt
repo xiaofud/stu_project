@@ -1,0 +1,1 @@
+{"versionCode": "20", "description": "\u52a0\u5165\u5185\u7f51\u652f\u6301", "download_address": "http://10.28.31.32/share/syllabus.apk", "versionDate": 1449217088, "apk_file_name": "syllabus.apk", "versionName": "v1.0", "versionReleaser": "smallfly"}

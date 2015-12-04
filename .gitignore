@@ -8,3 +8,6 @@ credit/syllabus_dir/
 
 # version_file
 class_interaction/version.txt
+
+# wsgi.py
+wsgi.py
