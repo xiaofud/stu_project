@@ -47,7 +47,8 @@ def query_exam():
 
 
 # 课程表
-@app.route('/syllabus', methods=['GET', 'POST'])
+# 不允许用GET方法
+@app.route('/syllabus', methods=['POST'])
 def query():
     if request.method == 'POST':
         user = request.form['username']

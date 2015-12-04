@@ -34,7 +34,7 @@ def backup_previous_release():
         return
     with open(VERSION_FILE) as f:
         version_json = json.load(f)
-        filename = "version_" + version_json["versionCode"] + ".txt"
+        filename = "version_" + str(version_json["versionCode"]) + ".txt"
         with open(filename, "w") as f:
             json.dump(version_json, f)
             print("成功备份: " + filename)
