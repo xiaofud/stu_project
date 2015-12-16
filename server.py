@@ -8,8 +8,8 @@ class_interaction.interaction_api_v1.api.init_app(app)
 # from stu_admin import syllabus_admin
 # import stu_admin.syllabus_admin
 
-# 保存课表文件
-views.syllabus_getter.CACHE_SYLLABUS = True
+# do not cache
+views.syllabus_getter.CACHE_SYLLABUS = False
 
 # 创建特殊课程时需要
 # from class_interaction.add_public_lesson import add_public_class
