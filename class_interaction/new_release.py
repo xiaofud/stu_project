@@ -39,6 +39,14 @@ def backup_previous_release():
             json.dump(version_json, f)
             print("成功备份: " + filename)
 
+def input_update_description():
+    description = str()
+    line = input("输入描述信息(空行为结束): \n")
+    while line.strip() != "":
+        description += line + "\n"
+        line = input()
+
+    return description.strip()
 
 
 def update_release_note():
@@ -51,12 +59,14 @@ def update_release_note():
         "versionName": "版本名称",
         "versionReleaser": "发布者",
         "apk_file_name": "apk文件名",
-        "description": "版本描述信息"
+        # "description": "版本描述信息"
     }
 
     for key in note:
         # 输出提示信息同时改变键值
         note[key] = input(note[key] + ":\n")
+
+    note["description"] = input_update_description()
 
     # 添加一些其他信息
     note["versionDate"] = int(time.time())
@@ -70,3 +80,4 @@ def update_release_note():
 if __name__ == "__main__":
     backup_previous_release()
     update_release_note()
+    # print(input_update_description())
