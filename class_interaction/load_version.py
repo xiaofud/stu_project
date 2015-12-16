@@ -10,7 +10,7 @@ filename = os.path.join(base_dir, VERSION_FILE)
 def load_version():
     if os.path.exists(filename):
         with open(filename, encoding="utf-8") as f:
-            json_obj = json.loads(f.read())
+            json_obj = json.load(f)
         return json_obj
     return None
 

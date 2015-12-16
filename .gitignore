@@ -7,7 +7,9 @@ credit/syllabus_dir/
 *.db
 
 # version_file
-class_interaction/version.txt
+class_interaction/*.txt
+
+#version.txt
 
 # wsgi.py
 wsgi.py

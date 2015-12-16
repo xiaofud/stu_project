@@ -17,15 +17,18 @@ def page_not_found(err):
 # 默认页面
 @app.route('/')
 def index():
-    urls = dict()
-    urls['syllabus'] = url_for('query', _external=True)
-    # urls['oa'] = url_for('get_updated_information', _external=True)
-    urls['auth'] = url_for('stu_auth', _external=True)
-    urls['grade'] = url_for('query_grades', _external=True)
-    urls['exam'] = url_for('query_exam', _external=True)
-    return render_template('home.html', urls=urls)
+    # urls = dict()
+    # urls['syllabus'] = url_for('query', _external=True)
+    # # urls['oa'] = url_for('get_updated_information', _external=True)
+    # urls['auth'] = url_for('stu_auth', _external=True)
+    # urls['grade'] = url_for('query_grades', _external=True)
+    # urls['exam'] = url_for('query_exam', _external=True)
 
-@app.route("/exam", methods=['GET', 'POST'])
+    # return render_template('home.html', urls=urls)
+    # return redirect("/app")
+    return "Hello STU"
+# 封印get方法
+@app.route("/exam", methods=['POST'])
 def query_exam():
     # 查看考试
     if request.method == "GET":
@@ -150,8 +153,9 @@ def check_token(username, token):
     return False
 
 
+# 封印get方法
 # 验证用户
-@app.route("/auth", methods=["GET", "POST"])
+@app.route("/auth", methods=["POST"])
 def stu_auth():
     if request.method == "POST":
         username = request.form['username']
@@ -169,7 +173,8 @@ def stu_auth():
     else:
         return render_template("auth.html")
 
-@app.route("/grade", methods=["GET", "POST"])
+# 封印GET方法
+@app.route("/grade", methods=["POST"])
 def query_grades():
     if request.method == "GET":
         return render_template("grade.html")
