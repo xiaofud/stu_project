@@ -285,8 +285,22 @@ class Members(Resource):
 
 api.add_resource(Members, "/api/v1.0/member")
 
-class Broadcast(Resource):
+class UserCount(Resource):
     """
-        用于在所有课程上广播(公共聊天区域)
+    返回现有的用户量
     """
-    pass
+
+    def get(self):
+        last_user = database_models.get_last_inserted_record(database_models.UserModel)
+        if last_user is not None:
+            return jsonify(user_count=last_user.id)
+        else:
+            return  jsonify(user_count=0)
+
+api.add_resource(UserCount, "/api/v1.0/user_count")
+
+# class Broadcast(Resource):
+#     """
+#         用于在所有课程上广播(公共聊天区域)
+#     """
+#     pass
