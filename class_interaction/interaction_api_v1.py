@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from .interaction_api import *
 from oa import oa_main
+from class_member import class_members_getter
     # api, Resource, class_arg_parser_helper,\
     # database_test, jsonify, ret_vals_helper, reqparse
 
@@ -265,6 +266,24 @@ class OAResource(Resource):
 
 api.add_resource(OAResource, "/api/v1.0/oa")
 
+class Members(Resource):
+
+    def __init__(self):
+        super(Members, self).__init__()
+        self.parser = reqparse.RequestParser()
+        # query string
+        self.parser.add_argument("class_id", required=True, location="args")
+
+    def get(self):
+        args = self.parser.parse_args()
+        class_id = args['class_id']
+        member_dict = class_members_getter.get(class_id)
+        if member_dict is not None:
+            return jsonify(class_info=class_members_getter.get(class_id))
+        else:
+            return jsonify(ERROR="error")
+
+api.add_resource(Members, "/api/v1.0/member")
 
 class Broadcast(Resource):
     """

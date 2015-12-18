@@ -160,7 +160,11 @@ class CourseInformation(Resource):
 
         elif type_ == self.DISCUSSION:
             # 返回讨论信息
-            all_discussions = get_discussion(id_, args['count'])
+            # 暂时限制返回的全球吹水数量
+            message_count = args['count']
+            if message_count == 400:
+                message_count = 100
+            all_discussions = get_discussion(id_, message_count)
             count = len(all_discussions)
             if count == 0:
                 return jsonify(ERROR="no discussion")
