@@ -39,7 +39,7 @@ SEMESTERS = {
 }
 
 ADMINS = [
-    "14xfdeng", "14jhwang"
+    "14xfdeng", "14jhwang", "13yjli3"
 ]
 
 def generate_certificate(length):
