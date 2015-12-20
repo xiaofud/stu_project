@@ -7,7 +7,7 @@ import json
 import time
 import os
 # 一些常量
-DOWNLOAD_ADDRESS = "http://10.28.31.32/share/syllabus.apk"
+DOWNLOAD_ADDRESS = "http://121.42.175.83:8080/syllabus.apk"
 
 # 存储文件名
 VERSION_FILE = "version.txt"
