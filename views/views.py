@@ -55,6 +55,8 @@ def query_exam():
 def query():
     if request.method == 'POST':
         user = request.form['username']
+        # 转换为小写
+        user = user.lower()
         password = request.form['password']
         years = request.form['years']
         start_year, end_year = years.split("-")
