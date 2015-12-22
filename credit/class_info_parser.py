@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from html.parser import HTMLParser
+import json
 TESTDATA ="""<td><a id="DataGrid1_ctl05_HyperLink1" href="../Info/DisplayKkb.aspx?ClassID=81229&amp;auth=82EEDB110657D1EE375CAF4F6652270E" target="_blank">81229</a>
 									</td><td><a href="../Course/DispCourseInfo.aspx?id=4644" target="_blank">[EEG2053A]电工电子学</a></td><td>4.0</td><td><a href="../Teacher/ClassTeacherInfo.aspx?ClassID=81229" target="_blank">柳平/张琼/陈征(实验)/夏隽娟(实验)                                               </a></td><td><a href="../CoursePlan/viewclassroom.aspx?ClassID=81229" target="_blank">D座504                                                                          </a></td><td>1 -14     </td><td>               </td><td>67             </td><td>               </td><td>               </td><td>67             </td><td>               </td><td>               </td>
 """
@@ -70,37 +71,39 @@ class Lesson(object):
     def add_quotes(mystr, quote="\""):
         return quote + mystr + quote
 
+    def to_dict(self):
+        days_dict = dict()
+        for day in self.schedule:
+            day_str = "w" + str(day)
+            if self.schedule[day].strip() != '':
+                time_str = self.schedule[day]
+            else:
+                time_str = "None"
+            days_dict[day_str] = time_str
+
+        json_dict = {
+            "name": self.name,
+            "id": self.num,
+            "teacher": self.teacher,
+            "room": self.room,
+            "duration": self.duration,
+            "credit": self.credit,
+            "days" : days_dict
+        }
+
+        return json_dict
+
+    @staticmethod
+    def dict_all(classes):
+        all_dict = list(map(lambda x: x.to_json(), classes))
+        return all_dict
+
     @staticmethod
     def jsonfy_all(classes):
-        json_data = "{" + Lesson.add_quotes("classes") + ":["
-        for cls in classes:
-            json_data += cls.to_json() + ","
-        json_data = json_data[: -1] + "]}"   # 去除末尾的逗号以及添加大括号
-        return json_data
+        return json.dumps({"classes" : Lesson.dict_all(classes)})
 
     def to_json(self):
-        days = []
-        for day in self.schedule:
-            if self.schedule[day].strip() != '':
-                cls_str = self.add_quotes( "w" + str(day)) + ":" + self.add_quotes(self.schedule[day])  # eg. "w2":"AB"
-            else:
-                cls_str = self.add_quotes( "w" + str(day)) + ":" + self.add_quotes("None")  # eg. "w3":"None"
-            days.append(cls_str)
-
-        days_str = "{"
-        for day in days:
-            days_str += day + ","
-        days_str = days_str[: -1]  + "}" # 去掉末尾的","
-
-        json_data =  "{" + self.add_quotes("name") + ":" + self.add_quotes(self.name) + ',' \
-                + self.add_quotes("id") + ":" + self.add_quotes(self.num) + "," \
-                + self.add_quotes("teacher") + ":" + self.add_quotes(self.teacher) + "," \
-                + self.add_quotes("room") + ":" + self.add_quotes(self.room) + "," \
-                + self.add_quotes("duration") + ":" + self.add_quotes(self.duration) + "," \
-                + self.add_quotes("credit") + ":" + self.add_quotes(self.credit) + "," \
-                + self.add_quotes("days") + ":"  + days_str   \
-                + "}"
-        return json_data
+        return json.dumps(self.to_dict())
 
 class ClassParser(HTMLParser):  # 空标签会被跳过
 
