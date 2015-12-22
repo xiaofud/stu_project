@@ -27,6 +27,14 @@ h1 {
 <h1 align="center">
     {{ user_count }}
 </h1>
+    <p>
+        <ul>
+        {% for user in users %}
+            <li style="text-align: center">{{ user.id }} - {{ user.user_account }}</li>
+        {% endfor %}
+        </ul>
+    </p>
+
 
 </body>
 </html>

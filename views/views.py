@@ -216,9 +216,10 @@ def get_message():
 def display_user_count():
     last_user = database_models.get_last_inserted_record(database_models.UserModel)
     if last_user is not None:
-        return render_template("user_count.html", user_count=last_user.id)
+        users = database_models.UserModel.query.order_by(database_models.UserModel.id.desc()).all()
+        return render_template("user_count.html", user_count=last_user.id, users=users)
     else:
-        return render_template("user_count.html", user_count=0)
+        return render_template("user_count.html", user_count=0, users=None)
 
 # def transform(text_file_contents):
 #     return text_file_contents.replace("=", ",")
