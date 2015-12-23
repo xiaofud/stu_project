@@ -6,13 +6,24 @@
 <style type="text/css">
 html {
   font-family: sans-serif;
-  color: white
+  color: white;
 }
 
 h1 {
     font-size: 200px;
 }
 
+
+
+.at_center ul{
+    display: inline-block;
+    text-align: left;
+    list-style-type: none;
+}
+
+.at_center {
+    text-align: center;
+}
 
 </style>
 </head>
@@ -27,13 +38,14 @@ h1 {
 <h1 align="center">
     {{ user_count }}
 </h1>
-    <p>
-        <ul>
+
+<div class="at_center">
+        <ul class="at_center">
         {% for user in users %}
-            <li style="text-align: center">{{ user.id }} - {{ user.user_account }}</li>
+            <li >{{ user.id }} - {{ user.user_account }}</li>
         {% endfor %}
         </ul>
-    </p>
+</div>
 
 
 </body>
