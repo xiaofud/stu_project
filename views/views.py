@@ -152,7 +152,7 @@ def get_updated_information_list():
                 pub_date = "2015-12-24"
                 oa_obj = OAObject(title, url, department, pub_date)
                 # 插入到第一个
-                information.insert(0, oa_obj)
+                information.insert(0, oa_obj.to_dict())
             return jsonify(DOCUMENTS=information)
     else:
         # 返回最新的 oa
