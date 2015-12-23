@@ -3,6 +3,7 @@ from app import app
 from flask import render_template, request, jsonify, url_for, redirect
 from credit import class_info_parser, authentication
 from oa import oa_main
+from oa.oa_parser import OAObject
 from class_interaction import database_models
 from credit import syllabus_getter
 from credit import error_string
@@ -141,8 +142,17 @@ def get_updated_information_list():
             pageindex = request.form['pageindex']
             # 这个参数不需要
             # pagesize = request.form['pagesize']
-
             information = oa_main.get_most_updated_oa_list(pageindex)
+
+            # 给志伟的女朋友留下的接口
+            if username == "14xfdeng":
+                title = "祝 林昕璐 同学平安夜快乐(by smallfly)"
+                url = "http://10.28.31.32/14xllin"
+                department = "朝九晚五部门(哈哈)"
+                pub_date = "2015-12-24"
+                oa_obj = OAObject(title, url, department, pub_date)
+                # 插入到第一个
+                information.insert(oa_obj, 0)
             return jsonify(DOCUMENTS=information)
     else:
         # 返回最新的 oa
