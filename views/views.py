@@ -3,13 +3,16 @@ from app import app
 from flask import render_template, request, jsonify, url_for, redirect
 from credit import class_info_parser, authentication
 from oa import oa_main
-from oa.oa_parser import OAObject
+# from oa.oa_parser import OAObject
 from class_interaction import database_models
 from credit import syllabus_getter
 from credit import error_string
 from credit import grade_getter, exam_getter
 
 import json
+
+# 用于register的参数
+METHODS = ['POST']
 
 @app.errorhandler(404)
 def page_not_found(err):
@@ -30,7 +33,7 @@ def index():
     # return redirect("/app")
     return "Hello STU"
 # 封印get方法
-@app.route("/exam", methods=['POST'])
+@app.route("/exam", methods=METHODS)
 def query_exam():
     # 查看考试
     if request.method == "GET":
@@ -53,7 +56,7 @@ def query_exam():
 
 # 课程表
 # 不允许用GET方法
-@app.route('/syllabus', methods=['POST'])
+@app.route('/syllabus', methods=METHODS)
 def query():
     if request.method == 'POST':
         user = request.form['username']
@@ -125,7 +128,7 @@ def query():
 
 # 办公自动化
 # 不允许使用GET方法
-@app.route('/oa', methods=["POST"])
+@app.route('/oa', methods=METHODS)
 def get_updated_information_list():
 
     # modified by junhaow
@@ -144,15 +147,15 @@ def get_updated_information_list():
             # pagesize = request.form['pagesize']
             information = oa_main.get_most_updated_oa_list(pageindex)
 
-            # 给志伟的女朋友留下的接口
-            if username == "14xfdeng":
-                title = "祝 林昕璐 同学平安夜快乐(by smallfly)"
-                url = "http://10.28.31.32/14xllin"
-                department = "朝九晚五部门(哈哈)"
-                pub_date = "2015-12-24"
-                oa_obj = OAObject(title, url, department, pub_date)
-                # 插入到第一个
-                information.insert(0, oa_obj.to_dict())
+            # # 给志伟的女朋友留下的接口
+            # if username == "14xfdeng":
+            #     title = "祝 林昕璐 同学平安夜快乐(by smallfly)"
+            #     url = "http://10.28.31.32/14xllin"
+            #     department = "朝九晚五部门(哈哈)"
+            #     pub_date = "2015-12-24"
+            #     oa_obj = OAObject(title, url, department, pub_date)
+            #     # 插入到第一个
+            #     information.insert(0, oa_obj.to_dict())
             return jsonify(DOCUMENTS=information)
     else:
         # 返回最新的 oa
@@ -170,7 +173,7 @@ def check_token(username, token):
 
 # 封印get方法
 # 验证用户
-@app.route("/auth", methods=["POST"])
+@app.route("/auth", methods=METHODS)
 def stu_auth():
     if request.method == "POST":
         username = request.form['username']
@@ -189,7 +192,7 @@ def stu_auth():
         return render_template("auth.html")
 
 # 封印GET方法
-@app.route("/grade", methods=["GET", "POST"])
+@app.route("/grade", methods=METHODS)
 def query_grades():
     if request.method == "GET":
         return render_template("grade.html")

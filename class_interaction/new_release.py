@@ -74,7 +74,7 @@ def update_release_note():
 
     #return json.dumps(note)
     with open(VERSION_FILE, "w") as f:
-        json.dump(note, f)
+        json.dump(note, f, ensure_ascii=False)
         print("生成了新的版本文件!")
 
 if __name__ == "__main__":
