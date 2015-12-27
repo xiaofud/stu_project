@@ -189,7 +189,7 @@ def stu_auth():
         return render_template("auth.html")
 
 # 封印GET方法
-@app.route("/grade", methods=["POST"])
+@app.route("/grade", methods=["GET", "POST"])
 def query_grades():
     if request.method == "GET":
         return render_template("grade.html")

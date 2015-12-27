@@ -3,6 +3,7 @@
 from .login_credit import login_credit, WEBSITE_ENCODING, _GLOBAL_DEFAULT_TIMEOUT
 from . import error_string
 from .grade_parser import GradeParser, Grade
+import re
 
 def get_grades_raw_data(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
     """
@@ -48,6 +49,67 @@ def figure_gpa(grade_list):
             grade_sum += grade_point / 10 * float(grade['class_credit'])
             credit_sum += float(grade['class_credit'])
     return grade_sum  /  credit_sum
+
+
+def calculate_gap(raw_data):
+    con = raw_data
+    pattern3=re.compile(r'(((class="TableForInfo"><caption>(.*?)</caption>)|(<tr>|<tr class="bg_alert">)<td>(\d{5})</td><td>(\[.*?\].*?)</td><td>(.*?)</td><td>(\d{2})</td><td>(\d.\d)</td></tr>)|(<td colspan.*?<b>.*?\d.*?(\d{1,2}\.\d).*?</b></td>))',re.S)
+
+    if re.search('caption',con):
+        items=re.findall(pattern3,con)
+        gpa=0
+        num=0
+        ans=0
+        sum_number=0
+        for item in items:
+                flag=re.search('caption',item[1])
+                flag1=re.search("colspan",item[0])
+                if flag1:
+                    num = float(item[11])
+                if not flag and not flag1:
+
+                    grade = int(item[8])
+                    y = float(item[9])
+                    if grade>=60:
+                        x = 1.0 + (grade - 60) // 10 + grade % 10 / 10.0
+                    else:
+                        x = 0
+                    gpa += y*x
+                    ans += y*x
+                else:
+                    if num>0:
+                        # print gpa/num
+                        gpa = 0
+                        sum_number += num
+                        num=0
+                    # print '\n\n',item[3]
+        temp=con
+        pattern4=r'<td>(\d{4}-\d{4}.*?)</td><td>(\d{5})</td><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td><td>(.*?)</td>'
+        xx=re.findall(pattern4,temp,re.S)
+
+        for i in xx:
+            if re.search('优秀',i[4]):
+               # print 'yes',i[4]
+                ans += 4.5 * float(i[5])
+                sum_number += float(i[5])
+            elif re.search('良好',i[4]):
+               # print 'no',i[4]
+                ans += 3.5 * float(i[5])
+                sum_number += float(i[5])
+            elif re.search('合格',i[4]):
+               # print 'no',i[4]
+                ans += 2.5 * float(i[5])
+                sum_number += float(i[5])
+            elif re.search('不合格',i[4]):
+               # print 'no',i[4]
+                ans += 0*float(i[5])
+                sum_number += float(i[5])
+            elif float(i[4])>=60:
+                ans += ( (int(i[4])-60) // 10 + 1.0 + int(i[4]) % 10 / 10.0)*float(i[5])
+                sum_number += float(i[5])
+                #print i[4]
+        return ans / sum_number
+
 
 
 def parse_grades(raw_data):
@@ -102,7 +164,7 @@ def parse_grades(raw_data):
 
         year_index = raw_data.find("学年", year_index + 4)
 
-    gpa = figure_gpa(grade_list)
+    gpa = calculate_gap(raw_data)
     return grade_list, gpa
 
 
