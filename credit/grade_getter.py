@@ -69,6 +69,7 @@ def calculate_gap(raw_data):
                 if not flag and not flag1:
 
                     grade = int(item[8])
+                    print(grade)
                     y = float(item[9])
                     if grade>=60:
                         x = 1.0 + (grade - 60) // 10 + grade % 10 / 10.0

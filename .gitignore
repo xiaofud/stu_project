@@ -13,3 +13,6 @@ class_interaction/*.txt
 
 # wsgi.py
 wsgi.py
+
+# testing folder
+/testing/

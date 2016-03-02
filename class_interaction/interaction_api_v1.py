@@ -5,8 +5,7 @@ from datetime import datetime
 from .interaction_api import *
 from oa import oa_main
 from class_member import class_members_getter
-    # api, Resource, class_arg_parser_helper,\
-    # database_test, jsonify, ret_vals_helper, reqparse
+from helpers.date_helper import week_manager
 
 def check_token(username, token):
     user = database_models.UserModel.query.filter_by(user_account=username).first()
@@ -299,7 +298,31 @@ class UserCount(Resource):
 
 api.add_resource(UserCount, "/api/v1.0/user_count")
 
+class SchoolWeek(Resource):
+    """
+    返回当前的周数
+    testing: curl localhost:6000/api/v1.0/week?date=2016/3/19
+    """
 
+    def __init__(self):
+        super(SchoolWeek, self).__init__()
+        self.parser = reqparse.RequestParser()
+        self.parser.add_argument("date")
+
+    def get(self):
+        args = self.parser.parse_args()
+        check_date = datetime.now().date()
+        if args["date"] is not None:
+            try:
+                check_date = datetime.strptime(args["date"], "%Y/%m/%d").date()
+            except Exception as e:
+                print(e)
+                return jsonify(ERROR="date format: %Y/%m/%d")
+
+        week = week_manager.calculate_week(check_date, week_manager.DEFAULT_FILE_PATH)
+        return jsonify(week=week)
+
+api.add_resource(SchoolWeek, "/api/v1.0/week")
 
 # class Broadcast(Resource):
 #     """
