@@ -5,6 +5,7 @@ from . import database_models
 from flask import jsonify
 from flask_restful import Api, Resource, reqparse, abort
 from . import load_version  # 读取版本信息
+from notification import notification_manager
 import hashlib
 
 database_models.db.create_all()
@@ -162,12 +163,19 @@ class CourseInformation(Resource):
             # 返回讨论信息
             # 暂时限制返回的全球吹水数量
             message_count = args['count']
+
             if message_count == 400:
                 message_count = 100
             all_discussions = get_discussion(id_, message_count)
             count = len(all_discussions)
             if count == 0:
                 return jsonify(ERROR="no discussion")
+            class_number = int(args['number'])
+            if class_number == 0:
+                # 全球吹水的话
+                notifications = notification_manager.get_notification()
+                if notifications is not None:
+                    return jsonify(latest=notifications, count=count, discussions=list(map(lambda x: x.to_dict(), all_discussions)))
             return jsonify(count=count, discussions=list(map(lambda x: x.to_dict(), all_discussions)))
         else:
             abort(404)
