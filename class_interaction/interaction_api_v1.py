@@ -6,6 +6,7 @@ from .interaction_api import *
 from oa import oa_main
 from class_member import class_members_getter
 from helpers.date_helper import week_manager
+from notification import notification_manager
 
 def check_token(username, token):
     user = database_models.UserModel.query.filter_by(user_account=username).first()
@@ -323,6 +324,20 @@ class SchoolWeek(Resource):
         return jsonify(week=week)
 
 api.add_resource(SchoolWeek, "/api/v1.0/week")
+
+
+class Notification(Resource):
+    """
+    返回最新的通知数据
+    """
+    def get(self):
+        obj = notification_manager.get_notification()
+        if obj is not None:
+            return jsonify(latest=obj)
+        else:
+            return jsonify(ERROR="no any notifications")
+
+api.add_resource(Notification, "/api/v1.0/notification", "/api/v1.0/notification/")
 
 # class Broadcast(Resource):
 #     """

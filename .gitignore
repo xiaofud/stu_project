@@ -16,3 +16,6 @@ wsgi.py
 
 # testing folder
 /testing/
+
+# notifications
+notification/notifications/*

@@ -34,8 +34,8 @@ def calculate_week(theDate, filePath):
     initial_data = get_initial_data(filePath)
     initial_date = datetime.datetime.strptime(initial_data["date"], "%Y/%m/%d").date()
     diff = theDate - initial_date
-    # 整除
-    passed_weeks = diff.days // 7
+
+    passed_weeks = diff.days // 7  # 整除
     return passed_weeks + initial_data["week"]
 
 def set_initial_date():
