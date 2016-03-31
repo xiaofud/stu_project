@@ -73,7 +73,7 @@ def login_credit(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
 
 
 if __name__ == "__main__":
-    ret_val = login_credit("xxx")
+    ret_val = login_credit("xxx", "hello")
     if ret_val[0]:
         print("okay")
     else:

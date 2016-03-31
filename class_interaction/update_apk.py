@@ -6,6 +6,10 @@
 import json
 import time
 import os
+
+BASE_DIR = os.path.dirname(__file__)
+DESCRIPTION_FILENAME = os.path.join(BASE_DIR, "description.txt")
+
 # 一些常量
 DOWNLOAD_ADDRESS = "http://121.42.175.83:8080/syllabus.apk"
 
@@ -48,6 +52,12 @@ def input_update_description():
 
     return description.strip()
 
+def load_description(filename):
+    if os.path.exists(filename):
+        with open(filename) as f:
+            return f.read()
+    else:
+        return None
 
 def update_release_note():
     """
@@ -66,7 +76,12 @@ def update_release_note():
         # 输出提示信息同时改变键值
         note[key] = input(note[key] + ":\n")
 
-    note["description"] = input_update_description()
+    description = load_description(DESCRIPTION_FILENAME)
+
+    if description is None:
+        note["description"] = input_update_description()
+    else:
+        note["description"] = description
 
     # 添加一些其他信息
     note["versionDate"] = int(time.time())
@@ -80,4 +95,3 @@ def update_release_note():
 if __name__ == "__main__":
     backup_previous_release()
     update_release_note()
-    # print(input_update_description())
