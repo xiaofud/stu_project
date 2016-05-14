@@ -56,7 +56,7 @@ def query_exam():
 
 # 课程表
 # 不允许用GET方法
-@app.route('/syllabus', methods=METHODS)
+@app.route('/syllabus', methods=("GET", "POST"))
 def query():
     if request.method == 'POST':
         user = request.form['username']
@@ -71,6 +71,42 @@ def query():
         print(user, start_year, end_year, semester)
         ret_val = syllabus_getter.get_syllabus(user, password, start_year=start_year, end_year=end_year, semester=semester, timeout=7)
         if ret_val[0]:
+            if len(ret_val) > 2:
+                # 说明微信验证通过
+                # 这里查找用户
+                account = database_models.UserModel.query.filter_by(user_account=user).first()
+                # 进行这次课表查询的用户还不在数据库中
+                if account is None:
+                    print(user + " new user")
+                    account = database_models.UserModel(user)
+                    # 默认昵称为帐号名
+                    account.user_nickname = user
+                    # 查看是否之前有人已经修改名字为这个账号名称
+                    fake_user = database_models.query_user_by_nickname(user)
+                    if fake_user is not None:
+                        # 将用户名改回去
+                        print("fake user is " + str(fake_user))
+                        fake_user.user_nickname = fake_user.user_account
+                        # 提交修改
+                        database_models.commit()
+                    # 加入数据库
+                    ret_vals = database_models.insert_to_database(account)
+                    if ret_vals[0]: # 插入成功
+                        # "token":"279456"
+                        token = account.user_certificate
+                        nickname = account.user_nickname
+                    else:
+                        return jsonify(ERROR="internal error")
+                # the user exists
+                else:
+                    # 生成新的token
+                    new_token = database_models.generate_certificate(database_models.CERTIFICATE_LENGTH)
+                    account.user_certificate = new_token
+                    # 提交更改
+                    database_models.db.session.commit()
+                    token = account.user_certificate
+                    nickname = account.user_nickname
+                return jsonify(ERROR="the user can't access credit system", nickname=nickname, token=token)
             content = ret_val[1]
             lessons = syllabus_getter.parse(content.decode("UTF-8"))
             if len(lessons) == 0:

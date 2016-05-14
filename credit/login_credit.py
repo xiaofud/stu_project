@@ -5,7 +5,9 @@ import http.client
 import http.cookiejar
 from socket import _GLOBAL_DEFAULT_TIMEOUT
 
+
 from . import error_string
+from . import auth_by_wechat
 
 WEBSITE_ENCODING = 'gbk'
 
@@ -60,7 +62,17 @@ def login_credit(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
             return False, error_string.WRONG_PASSWORD
         # 该账号不存在或者不允许被使用学分制系统
         elif content.__contains__(b'not allowed to access this system'):
-            return False, error_string.NOT_ALLOWED
+            # 这里再进行一次微信验证
+            print("auth by wechat")
+            result = auth_by_wechat.auth(username, password)
+            if result:
+                # 说明有可能是医学院或者研究生
+                return True, True, True
+            elif result is None:
+                return False, error_string.TIME_OUT
+            else:
+                return False, error_string.WRONG_PASSWORD
+            # return False, error_string.NOT_ALLOWED
         elif content.__contains__(b'alert'):    # 提示欠费那个错误
             return False, error_string.SYSTEM_BROKEN
 
@@ -73,7 +85,7 @@ def login_credit(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
 
 
 if __name__ == "__main__":
-    ret_val = login_credit("xxx", "hello")
+    ret_val = login_credit("14xfdeng2", "hello")
     if ret_val[0]:
         print("okay")
     else:
