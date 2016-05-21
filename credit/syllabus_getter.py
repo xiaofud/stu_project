@@ -119,7 +119,11 @@ def parse(content):
     content = class_info_parser.get_class_html_parts(content)
     lesson_list = list()
     for lesson in content:
-        parser.feed(lesson)
+        # 一个奇怪的BUG
+        # 在本机上运行OK
+        # 但在服务器的python版本上不这样的话会出现问题
+        # 在服务器上需要 replace
+        parser.feed(lesson.replace("&", "and"))
         lesson_list.append(parser.lesson)
         parser.clear()  # 记得每次都需要clear一次，不然返回的数据是第一次的数据
     parser.close()
