@@ -106,58 +106,62 @@ def query():
                     database_models.db.session.commit()
                     token = account.user_certificate
                     nickname = account.user_nickname
-                return jsonify(ERROR="the user can't access credit system", nickname=nickname, token=token)
+                # return jsonify(ERROR="the user can't access credit system", nickname=nickname, token=token)
+                    # 返回空的课表
+                    return jsonify(nickname=nickname, token=token, classes=[])
             content = ret_val[1]
             lessons = syllabus_getter.parse(content.decode("UTF-8"))
-            if len(lessons) == 0:
-                return jsonify(ERROR="No classes")
-            else:
-                # 课程的json数据
-                lessons_dict_data = class_info_parser.Lesson.dict_all(lessons)
-                # 这里查找用户
-                account = database_models.UserModel.query.filter_by(user_account=user).first()
-                # 进行这次课表查询的用户还不在数据库中
-                if account is None:
-                    print(user + " new user")
-                    account = database_models.UserModel(user)
-                    # 默认昵称为帐号名
-                    account.user_nickname = user
-                    # 查看是否之前有人已经修改名字为这个账号名称
-                    fake_user = database_models.query_user_by_nickname(user)
-                    if fake_user is not None:
-                        # 将用户名改回去
-                        print("fake user is " + str(fake_user))
-                        fake_user.user_nickname = fake_user.user_account
-                        # 提交修改
-                        database_models.commit()
-                    # 加入数据库
-                    ret_vals = database_models.insert_to_database(account)
-                    if ret_vals[0]: # 插入成功
-                        # "token":"279456"
-                        token = account.user_certificate
-                        nickname = account.user_nickname
-
-                # the user exists
-                else:
-                    # 生成新的token
-                    new_token = database_models.generate_certificate(database_models.CERTIFICATE_LENGTH)
-                    account.user_certificate = new_token
-                    # 提交更改
-                    database_models.db.session.commit()
-
+            # 去掉没有class的情况
+            # if len(lessons) == 0:
+                # return jsonify(nickname=account.user_nickname, token=token, )
+                # return jsonify(ERROR="No classes")
+            # else:
+            # 课程的json数据
+            lessons_dict_data = class_info_parser.Lesson.dict_all(lessons)
+            # 这里查找用户
+            account = database_models.UserModel.query.filter_by(user_account=user).first()
+            # 进行这次课表查询的用户还不在数据库中
+            if account is None:
+                print(user + " new user")
+                account = database_models.UserModel(user)
+                # 默认昵称为帐号名
+                account.user_nickname = user
+                # 查看是否之前有人已经修改名字为这个账号名称
+                fake_user = database_models.query_user_by_nickname(user)
+                if fake_user is not None:
+                    # 将用户名改回去
+                    print("fake user is " + str(fake_user))
+                    fake_user.user_nickname = fake_user.user_account
+                    # 提交修改
+                    database_models.commit()
+                # 加入数据库
+                ret_vals = database_models.insert_to_database(account)
+                if ret_vals[0]: # 插入成功
+                    # "token":"279456"
                     token = account.user_certificate
                     nickname = account.user_nickname
-                # see if to save to file
-                if syllabus_getter.CACHE_SYLLABUS:
-                    filename = user + "_" + "{}_{}".format(start_year, end_year) + "_" + str(semester)
-                    syllabus_getter.save_file(filename, lessons_dict_data)
-                json_data = {
-                    "classes": list(map(lambda x: x.to_dict(), lessons)),
-                    "token": token,
-                    "nickname": nickname
-                }
 
-                return json.dumps(json_data, ensure_ascii=False)
+            # the user exists
+            else:
+                # 生成新的token
+                new_token = database_models.generate_certificate(database_models.CERTIFICATE_LENGTH)
+                account.user_certificate = new_token
+                # 提交更改
+                database_models.db.session.commit()
+
+                token = account.user_certificate
+                nickname = account.user_nickname
+            # see if to save to file
+            if syllabus_getter.CACHE_SYLLABUS:
+                filename = user + "_" + "{}_{}".format(start_year, end_year) + "_" + str(semester)
+                syllabus_getter.save_file(filename, lessons_dict_data)
+            json_data = {
+                "classes": list(map(lambda x: x.to_dict(), lessons)),
+                "token": token,
+                "nickname": nickname,
+            }
+
+            return json.dumps(json_data, ensure_ascii=False)
         else:
             return jsonify(ERROR=error_string.err_srt(ret_val[1]))
     return render_template('login.html')
