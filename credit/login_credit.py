@@ -67,6 +67,7 @@ def login_credit(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
             result = auth_by_wechat.auth(username, password)
             if result:
                 # 说明有可能是医学院或者研究生
+                print("may be medical or postgraduate")
                 return True, True, True
             elif result is None:
                 return False, error_string.TIME_OUT

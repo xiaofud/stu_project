@@ -30,8 +30,10 @@ def auth(username, password):
         print(resp.getcode())
         content = resp.read().decode("utf-8")
         if "账号或者密码错误" in content:
+            print("error password in wechat auth")
             return False
-        return False
+        print("correct password in wechat auth")
+        return True
     except Exception as e:
         print(e)
         return None

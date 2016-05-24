@@ -59,6 +59,10 @@ def get_syllabus(username, password, start_year=2015, end_year=2016, semester=AU
             return False, error_string.WRONG_DATE
 
         ret_val = login_credit(username, password, timeout)
+
+        if len(ret_val) == 3:   # 医学院或者研究生的情况
+            return ret_val
+
         if ret_val[0]:
             opener = ret_val[1]
         else:
