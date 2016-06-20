@@ -69,7 +69,7 @@ def get_syllabus(username, password, start_year=2015, end_year=2016, semester=AU
             return ret_val
 
         # 查看课表
-        resp = opener.open('http://credit.stu.edu.cn/Elective/MyCurriculumSchedule.aspx', timeout=timeout)
+        resp = opener.open('http://credit2.stu.edu.cn/Elective/MyCurriculumSchedule.aspx', timeout=timeout)
         content = resp.read()
         assert isinstance(content, bytes)
         start_str = b'.aspx?'
@@ -77,7 +77,7 @@ def get_syllabus(username, password, start_year=2015, end_year=2016, semester=AU
         end_index = content.find(b' ', start_index)
         args = content[start_index + len(start_str): end_index - 1]
         # print(type(args))
-        curriculum_url = (b'http://credit.stu.edu.cn/Student/StudentTimeTable.aspx?' + args).decode(WEBSITE_ENCODING)
+        curriculum_url = (b'http://credit2.stu.edu.cn/Student/StudentTimeTable.aspx?' + args).decode(WEBSITE_ENCODING)
         # print(curriculum_url)
         data =('__EVENTTARGET=&__EVENTARGUMENT=' \
               '&__VIEWSTATE=%2FwEPDwUKLTc4MzA3NjE3Mg9kFgICAQ9kFgYCAQ9kFgRmDxAPFgIeBFRleHQFDzIwMTUtMjAxNuWtpuW5tGQQFQcPMjAxMi0yMDEz5a2m5bm0DzIwMTMtMjAxNOWtpuW5tA8yMDE0LTIwMTXlrablubQPMjAxNS0yMDE25a2m5bm0DzIwMTYtMjAxN%2BWtpuW5tA8yMDE3LTIwMTjlrablubQPMjAxOC0yMDE55a2m5bm0FQc' \

@@ -31,3 +31,5 @@ def err_srt(code):
         return "account not exist or not allowed"
     elif code == NO_EXAMS:
         return "no exams"
+    else:
+        return "UNKNOWN"

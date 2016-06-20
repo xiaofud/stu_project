@@ -12,7 +12,7 @@ from . import auth_by_wechat
 WEBSITE_ENCODING = 'gbk'
 
 # 学分制的登陆地址
-LOGIN_ADDRESS = 'http://credit.stu.edu.cn/portal/stulogin.aspx'
+LOGIN_ADDRESS = 'http://credit2.stu.edu.cn/portal/stulogin.aspx'
 
 def convert_encoding(data, from_, to):
     """

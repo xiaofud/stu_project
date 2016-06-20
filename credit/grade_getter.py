@@ -19,7 +19,7 @@ def get_grades_raw_data(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
     else:
         return ret_val
     try:
-        resp = opener.open("http://credit.stu.edu.cn/Grade/MyGradeStudent.aspx", timeout=timeout)
+        resp = opener.open("http://credit2.stu.edu.cn/Grade/MyGradeStudent.aspx", timeout=timeout)
         return True, resp.read().decode(WEBSITE_ENCODING)
     except Exception as err:
         print(__file__, type(err), str(err))

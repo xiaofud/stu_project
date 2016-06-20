@@ -37,7 +37,7 @@ def get_exam_raw_data(username, password, start_year=2014, end_year=2015, semest
     url_encode_post_data = url_encode_post_data.replace("XQ=1", "XQ=" + str(semester))
 
     url_encode_post_data = url_encode_post_data.encode()
-    resp = opener.open("http://credit.stu.edu.cn/Exam/ExmStudent.aspx", url_encode_post_data, timeout=timeout)
+    resp = opener.open("http://credit2.stu.edu.cn/Exam/ExmStudent.aspx", url_encode_post_data, timeout=timeout)
     return True, resp.read().decode(login_credit.WEBSITE_ENCODING)
 
 

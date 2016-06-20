@@ -6,7 +6,7 @@
 from . import login_credit
 from . import error_string
 
-TARGET_ADDRESS = "http://credit.stu.edu.cn/Elective/MyElectiveList.aspx"
+TARGET_ADDRESS = "http://credit2.stu.edu.cn/Elective/MyElectiveList.aspx"
 WEBSITE_ENCODING = "GBK"
 
 def get_html_source(username, password, timeout=7):

@@ -4,7 +4,7 @@ import urllib
 import urllib.request
 import socket
 
-HOSTADDR = 'http://credit.stu.edu.cn/portal/stulogin.aspx'
+HOSTADDR = 'http://credit2.stu.edu.cn/portal/stulogin.aspx'
 WEBSITE_ENCODING = 'gbk'
 MAX_TIME = 3  # 3 seconds
 
