@@ -9,10 +9,14 @@ from socket import _GLOBAL_DEFAULT_TIMEOUT
 from . import error_string
 from . import auth_by_wechat
 
+# import error_string
+# import auth_by_wechat
+
 WEBSITE_ENCODING = 'gbk'
 
 # 学分制的登陆地址
-LOGIN_ADDRESS = 'http://credit2.stu.edu.cn/portal/stulogin.aspx'
+# LOGIN_ADDRESS = 'http://credit2.stu.edu.cn/portal/stulogin.aspx'
+LOGIN_ADDRESS = 'http://121.42.175.83:8084/portal/stulogin.aspx'
 
 def convert_encoding(data, from_, to):
     """
@@ -38,15 +42,28 @@ def login_credit(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
     """
     try:
         # 登录学分制需要POST的数据
+        # CREDIT
+        # post_data = urllib.parse.urlencode({
+        #     "txtUserID": username,
+        #     "txtUserPwd": password,
+        #     "btnLogon": "登录",
+        #     '__EVENTTARGET': '',
+        #     '__EVENTARGUMENT': '',
+        #     '__VIEWSTATE': '/wEPDwUKMTM1MzI1Njg5N2Rk47x7/EAaT/4MwkLGxreXh8mHHxA=',
+        #     '__VIEWSTATEGENERATOR': 'FBAF4793',
+        #     '__EVENTVALIDATION': '/wEWBAKo25zdBALT8dy8BQLG8eCkDwKk07qFCRXt1F3RFYVdjuYasktKIhLnziqd'
+        # })
+
+        # CREDIT2
         post_data = urllib.parse.urlencode({
             "txtUserID": username,
             "txtUserPwd": password,
             "btnLogon": "登录",
             '__EVENTTARGET': '',
             '__EVENTARGUMENT': '',
-            '__VIEWSTATE': '/wEPDwUKMTM1MzI1Njg5N2Rk47x7/EAaT/4MwkLGxreXh8mHHxA=',
+            '__VIEWSTATE': '/wEPDwUKMTM1MzI1Njg5N2Rkgl08wbsYqyvisOP2702B+mD2kog=',
             '__VIEWSTATEGENERATOR': 'FBAF4793',
-            '__EVENTVALIDATION': '/wEWBAKo25zdBALT8dy8BQLG8eCkDwKk07qFCRXt1F3RFYVdjuYasktKIhLnziqd'
+            '__EVENTVALIDATION': '/wEWBAK77NOfDwLT8dy8BQLG8eCkDwKk07qFCeLFbY7oqztt9HeypEghIXEFkJRK'
         })
         # 需要转换为字节流
         post_data = post_data.encode("utf-8")
@@ -86,7 +103,7 @@ def login_credit(username, password, timeout=_GLOBAL_DEFAULT_TIMEOUT):
 
 
 if __name__ == "__main__":
-    ret_val = login_credit("14xfdeng2", "hello")
+    ret_val = login_credit("14xfdeng", "Hjsmallfly0806")
     if ret_val[0]:
         print("okay")
     else:
