@@ -8,7 +8,7 @@ WEBSITE_ENCODING = "GBK"
 TIME_OUT = 4 # 4s
 
 def getClassByClassNo(classNo):
-    url = 'http://credit.stu.edu.cn/Info/DisplayKkb.aspx?ClassID=' + str(classNo)
+    url = 'http://credit2.stu.edu.cn/Info/DisplayKkb.aspx?ClassID=' + str(classNo)
     try:
         content = urllib.request.urlopen(url, timeout=TIME_OUT).read().decode(WEBSITE_ENCODING)
         return content

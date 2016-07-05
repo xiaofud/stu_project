@@ -72,16 +72,36 @@
         <entry file="file://$PROJECT_DIR$/credit/exam_getter.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="3" column="3" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
+              <caret line="45" column="7" selection-start-line="45" selection-start-column="7" selection-end-line="45" selection-end-column="7" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="syllabus_getter.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="class_members_getter.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/class_member/class_members_getter.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="getClassFromCredit.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/class_member/helper/getClassFromCredit.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.26213592">
+              <caret line="10" column="25" selection-start-line="10" selection-start-column="25" selection-end-line="10" selection-end-column="25" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="syllabus_getter.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/credit/syllabus_getter.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6699029">
+            <state vertical-scroll-proportion="0.0">
               <caret line="102" column="34" selection-start-line="102" selection-start-column="34" selection-end-line="102" selection-end-column="34" />
               <folding />
             </state>
@@ -122,7 +142,6 @@
         <option value="$PROJECT_DIR$/class_member/getClassFromCredit.py" />
         <option value="$PROJECT_DIR$/class_member/toJson.py" />
         <option value="$PROJECT_DIR$/class_member/helper/toJson.py" />
-        <option value="$PROJECT_DIR$/class_member/helper/getClassFromCredit.py" />
         <option value="$PROJECT_DIR$/class_member/class_members_getter.py" />
         <option value="$PROJECT_DIR$/class_interaction/database_models.py" />
         <option value="$PROJECT_DIR$/elective_test.py" />
@@ -156,12 +175,13 @@
         <option value="$PROJECT_DIR$/credit/auth_by_wechat.py" />
         <option value="$PROJECT_DIR$/views/views.py" />
         <option value="$PROJECT_DIR$/credit/error_string.py" />
-        <option value="$PROJECT_DIR$/credit/exam_getter.py" />
         <option value="$PROJECT_DIR$/credit/elective_list.py" />
         <option value="$PROJECT_DIR$/credit/grade_getter.py" />
         <option value="$PROJECT_DIR$/credit/authentication.py" />
         <option value="$PROJECT_DIR$/credit/login_credit.py" />
         <option value="$PROJECT_DIR$/credit/syllabus_getter.py" />
+        <option value="$PROJECT_DIR$/credit/exam_getter.py" />
+        <option value="$PROJECT_DIR$/class_member/helper/getClassFromCredit.py" />
       </list>
     </option>
   </component>
@@ -249,6 +269,20 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="credit" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="stu_project" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="stu_project" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="class_member" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -659,20 +693,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/flask/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.24731183">
-          <caret line="92" column="54" selection-start-line="92" selection-start-column="54" selection-end-line="92" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/flask_sqlalchemy/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.42150536">
-          <caret line="772" column="8" selection-start-line="772" selection-start-column="8" selection-end-line="772" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/local/lib/python3.5/dist-packages/flask_restful/reqparse.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="2.6709678">
@@ -1006,18 +1026,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/credit/exam_getter.py">
+    <entry file="file://$PROJECT_DIR$/credit/syllabus_getter.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="3" selection-start-line="3" selection-start-column="3" selection-end-line="3" selection-end-column="3" />
+          <caret line="102" column="34" selection-start-line="102" selection-start-column="34" selection-end-line="102" selection-end-column="34" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/credit/syllabus_getter.py">
+    <entry file="file://$PROJECT_DIR$/credit/exam_getter.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6699029">
-          <caret line="102" column="34" selection-start-line="102" selection-start-column="34" selection-end-line="102" selection-end-column="34" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="45" column="7" selection-start-line="45" selection-start-column="7" selection-end-line="45" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/class_member/class_members_getter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/class_member/helper/getClassFromCredit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.26213592">
+          <caret line="10" column="25" selection-start-line="10" selection-start-column="25" selection-end-line="10" selection-end-column="25" />
           <folding />
         </state>
       </provider>
