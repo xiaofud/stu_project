@@ -79,6 +79,7 @@ def get_syllabus(username, password, start_year=2015, end_year=2016, semester=AU
         # print(type(args))
         curriculum_url = (b'http://credit2.stu.edu.cn/Student/StudentTimeTable.aspx?' + args).decode(WEBSITE_ENCODING)
         # print(curriculum_url)
+        # CREDIT
         data =('__EVENTTARGET=&__EVENTARGUMENT=' \
               '&__VIEWSTATE=%2FwEPDwUKLTc4MzA3NjE3Mg9kFgICAQ9kFgYCAQ9kFgRmDxAPFgIeBFRleHQFDzIwMTUtMjAxNuWtpuW5tGQQFQcPMjAxMi0yMDEz5a2m5bm0DzIwMTMtMjAxNOWtpuW5tA8yMDE0LTIwMTXlrablubQPMjAxNS0yMDE25a2m5bm0DzIwMTYtMjAxN%2BWtpuW5tA8yMDE3LTIwMTjlrablubQPMjAxOC0yMDE55a2m5bm0FQc' \
               'PMjAxMi0yMDEz5a2m5bm0DzIwMTMtMjAxNOWtpuW5tA8yMDE0LTIwMTXlrablubQPMjAxNS0yMDE25a2m' \
@@ -95,6 +96,10 @@ def get_syllabus(username, password, start_year=2015, end_year=2016, semester=AU
             # 'ucsYS%24XN%24Text=' + str(start_year) + '-' + str(end_year) + '%' \
                 # 上面的Text那里是学年的选择，XQ 有三个取值 1(秋季学期) 2(春季学期) 3(夏季学期)
         # print(data)
+
+        # CREDIT2
+        data = ('__EVENTTARGET=&__EVENTARGUMENT=&__VIEWSTATE=%2FwEPDwUKLTc4MzA3NjE3Mg9kFgICAQ9kFgYCAQ9kFgRmDxAPFgIeBFRleHQFDzIwMTUtMjAxNuWtpuW5tGQQFQcPMjAxMi0yMDEz5a2m5bm0DzIwMTMtMjAxNOWtpuW5tA8yMDE0LTIwMTXlrablubQPMjAxNS0yMDE25a2m5bm0DzIwMTYtMjAxN%2BWtpuW5tA8yMDE3LTIwMTjlrablubQPMjAxOC0yMDE55a2m5bm0FQcPMjAxMi0yMDEz5a2m5bm0DzIwMTMtMjAxNOWtpuW5tA8yMDE0LTIwMTXlrablubQPMjAxNS0yMDE25a2m5bm0DzIwMTYtMjAxN%2BWtpuW5tA8yMDE3LTIwMTjlrablubQPMjAxOC0yMDE55a2m5bm0FCsDB2dnZ2dnZ2cWAGQCAQ8QZGQWAWZkAgUPFCsACw8WCB4IRGF0YUtleXMWAB4LXyFJdGVtQ291bnRmHglQYWdlQ291bnQCAR4VXyFEYXRhU291cmNlSXRlbUNvdW50ZmRkFgQeCENzc0NsYXNzBQxER1BhZ2VyU3R5bGUeBF8hU0ICAhYEHwUFDURHSGVhZGVyU3R5bGUfBgICFgQfBQUNREdGb290ZXJTdHlsZR8GAgIWBB8FBQtER0l0ZW1TdHlsZR8GAgIWBB8FBRZER0FsdGVybmF0aW5nSXRlbVN0eWxlHwYCAhYEHwUFE0RHU2VsZWN0ZWRJdGVtU3R5bGUfBgICFgQfBQUPREdFZGl0SXRlbVN0eWxlHwYCAhYEHwUFAkRHHwYCAmQWAmYPZBYCAgEPZBYEAgMPDxYCHwAFDeWFsTDpl6jor77nqItkZAIEDw8WAh8ABQcw5a2m5YiGZGQCBg8UKwALDxYCHgdWaXNpYmxlaGRkFgQfBQUMREdQYWdlclN0eWxlHwYCAhYEHwUFDURHSGVhZGVyU3R5bGUfBgICFgQfBQUNREdGb290ZXJTdHlsZR8GAgIWBB8FBQtER0l0ZW1TdHlsZR8GAgIWBB8FBRZER0FsdGVybmF0aW5nSXRlbVN0eWxlHwYCAhYEHwUFE0RHU2VsZWN0ZWRJdGVtU3R5bGUfBgICFgQfBQUPREdFZGl0SXRlbVN0eWxlHwYCAhYEHwUFAkRHHwYCAmRkGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYCBQh1Y3NZUyRYTgUJYnRuU2VhcmNoJTV%2FMeZ5WxjDsWYDHyxO3RTZeMk%3D&__EVENTVALIDATION=%2FwEWDgKIhqaiDQKA2K7WDwKl3bLICQKs3faYCwKj3ZrWCALF5PiNDALE5IzLDQLD5MCbDwKv3YqZDQL7tY9IAvi1j0gC%2BrWPSAL63YQMAqWf8%2B4Ktyz9DhudS1A5Bt9xLY%2BwcIh%2Bpro%3D&ucsYS%24XN%24Text={}-{}%' \
+              'D1%A7%C4%EA&ucsYS%24XQ=' + str(semester) + '&ucsYS%24hfXN=&btnSearch.x=42&btnSearch.y=21').format(start_year, end_year)
         data = data.encode('utf-8')
 
         resp = opener.open(curriculum_url, data=data, timeout=timeout)
