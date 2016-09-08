@@ -52,6 +52,14 @@ def figure_gpa(grade_list):
 
 
 def calculate_gap(raw_data):
+    last_index_of_GPA = raw_data.rindex("GPA")
+    if last_index_of_GPA >= 0:
+        # print(raw_data[last_index_of_GPA:])
+        end_index = raw_data.index("</", last_index_of_GPA)
+        if end_index >= 0:
+            gpa = float(raw_data[last_index_of_GPA + len("GPA="): end_index])
+            return gpa
+
     con = raw_data
     pattern3=re.compile(r'(((class="TableForInfo"><caption>(.*?)</caption>)|(<tr>|<tr class="bg_alert">)<td>(\d{5})</td><td>(\[.*?\].*?)</td><td>(.*?)</td><td>(\d{2})</td><td>(\d.\d)</td></tr>)|(<td colspan.*?<b>.*?\d.*?(\d{1,2}\.\d).*?</b></td>))',re.S)
 
