@@ -52,6 +52,17 @@ def figure_gpa(grade_list):
 
 
 def calculate_gap(raw_data):
+    # 定位到最后一个[成绩统计]那里, 然后再抓第一个GPA
+    begin_index = raw_data.rindex("成绩统计")
+    if begin_index != -1:
+        first_index_of_GPA = raw_data.index("GPA", begin_index)
+        if first_index_of_GPA >= 0:
+            # print(raw_data[last_index_of_GPA:])
+            end_index = raw_data.index("，", first_index_of_GPA)
+            if end_index >= 0:
+                gpa = float(raw_data[first_index_of_GPA + len("GPA="): end_index])
+                return gpa
+
     con = raw_data
     pattern3=re.compile(r'(((class="TableForInfo"><caption>(.*?)</caption>)|(<tr>|<tr class="bg_alert">)<td>(\d{5})</td><td>(\[.*?\].*?)</td><td>(.*?)</td><td>(\d{2})</td><td>(\d.\d)</td></tr>)|(<td colspan.*?<b>.*?\d.*?(\d{1,2}\.\d).*?</b></td>))',re.S)
 
@@ -152,9 +163,11 @@ def parse_grades(raw_data):
             # 定位这个学期的成绩单
             tmp_index = semester_data.find("学分", semester_index)
             grade_start_index = semester_data.find("<tr>", tmp_index)
-            grade_end_index = semester_data.find("共", grade_start_index)
+            # 不能用单独的[共]作为识别符号, 因为有课程的名字中含有共这个字
+            grade_end_index = semester_data.find("共选修课程", grade_start_index)
             grade_end_index = semester_data.find("</tr>", grade_end_index)
             grade_string = semester_data[grade_start_index : grade_end_index + len("</tr>")]
+            # print(grade_string)
             parser = GradeParser(None, None)
             # print(parser.get_grades(grade_string, cur_year_str, cur_semester))
                                                                                         # 转化为字典，便于json化

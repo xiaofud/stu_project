@@ -112,7 +112,7 @@ class GradeParser(HTMLParser):
         assert isinstance(data, str)
         # 已经去除了数据的空白
         data = data.strip()
-        if data.__contains__("共"):
+        if data.__contains__("共选修课程"):
             self.finished = True
 
         # 解析没有完成，而且数据不是空白的话
