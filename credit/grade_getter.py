@@ -167,6 +167,8 @@ def parse_grades(raw_data):
             grade_end_index = semester_data.find("共选修课程", grade_start_index)
             grade_end_index = semester_data.find("</tr>", grade_end_index)
             grade_string = semester_data[grade_start_index : grade_end_index + len("</tr>")]
+            # 在debian上字符&的处理会有问题, 所以先这样处理
+            grade_string = grade_string.replace("&", " and ")
             # print(grade_string)
             parser = GradeParser(None, None)
             # print(parser.get_grades(grade_string, cur_year_str, cur_semester))
